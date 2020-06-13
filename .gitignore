@@ -1,0 +1,13 @@
+*.o
+
+Makefile
+moc_*
+.qmake*
+editor.app
+editor/editor
+
+jqn
+
+.cache/
+**/dist/
+**/node_modules/

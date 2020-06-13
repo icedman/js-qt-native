@@ -1,0 +1,36 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn init
+
+PATH: 
+  /home/iceman/Developer/wm/swaybox/build/sway:/home/iceman/Developer/wm/tinybox/build/tinybox:/home/iceman/Developer/flutter/bin:/home/iceman/Developer/Android/jdk1.8.0_181//bin:/home/iceman/Developer/Android/platform-tools:/home/iceman/Developer/Android/tools/bin:/home/iceman/Developer/Android/tools:/home/iceman/Developer/Android/emulator:/home/iceman/Developer/Android:/home/iceman/Developer/Android/android-ndk-r20/:/opt/google-cloud-sdk/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+Yarn version: 
+  1.22.4
+
+Node version: 
+  10.16.3
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: canceled
+      at Interface.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:137008:13)
+      at Interface.emit (events.js:198:13)
+      at Interface._ttyWrite (readline.js:801:16)
+      at ReadStream.onkeypress (readline.js:184:10)
+      at ReadStream.emit (events.js:198:13)
+      at emitKeys (internal/readline.js:424:14)
+      at emitKeys.next (<anonymous>)
+      at ReadStream.onData (readline.js:1075:36)
+      at ReadStream.emit (events.js:198:13)
+      at addChunk (_stream_readable.js:288:12)
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
