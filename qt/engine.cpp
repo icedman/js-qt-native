@@ -17,6 +17,7 @@ Engine::Engine(QWidget* parent) :
     setLayout(box);
 
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
     view = new QWebView(this);
     frame = view->page()->mainFrame();

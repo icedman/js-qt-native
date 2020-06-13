@@ -11,13 +11,14 @@ import {
     Button
 } from '../../lib/core';
 
+import { useTodos, StoreProvider as TodosProvider } from './context';
+
 const App = () => {
-  const [state, setState] = React.useState({
-    todos: []
-  });
+  const todos = useTodos();
+  const state = todos.state;
 
   const addTodo = (evt) => {
-    setState({
+    todos.dispatch(todos.setState({
       ...state,
       newTodo: '',
       todos: [ ...state.todos, {
@@ -25,7 +26,7 @@ const App = () => {
         text: state.newTodo,
         checked: false
       }]
-    })
+    }));
   };
 
   const deleteTodo = (todo) => {
@@ -36,18 +37,18 @@ const App = () => {
     if (idx !== -1) {
       let updateTodos = [ ...state.todos ];
       updateTodos.splice(idx, 1);
-      setState({
+      todos.dispatch(todos.setState({
         ...state,
         todos: updateTodos
-      })
+      }));
     }
   }
 
   const setNewTodo = (evt) => {
-    setState({
+    todos.dispatch(todos.setState({
         ...state,
         newTodo: evt.target.value
-    })
+    }));
   }
 
   const todosRendered = state.todos.map((todo,idx) => {
@@ -60,7 +61,7 @@ const App = () => {
     return <div>
         <MainWindow id='mainWindow' style={{flexDirection:'column'}}>
             <Text>
-                <h2>Todos App</h2>
+                <h2>Todoz App</h2>
             </Text>
             <TextInput text={state.newTodo} onSubmit={addTodo} onChange={setNewTodo}></TextInput>
             <Button text='Add Todo' onClick={addTodo}></Button>
@@ -71,4 +72,4 @@ const App = () => {
         </div>
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<TodosProvider><App/></TodosProvider>, document.getElementById("root"));
