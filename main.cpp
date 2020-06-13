@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
     QCommandLineParser parser;
     QCommandLineOption inspectOption(QStringList() << "i" << "inspect", "show web inspector");
     QCommandLineOption htmlOption(QStringList() << "m" << "html", "inspect with html view");
-    QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "./index.js");
+    QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "./index.html");
     QCommandLineOption devModeOption(QStringList() << "d" << "develop", "run in development mode");
     QCommandLineOption devHostOption(QStringList() << "x" << "host", "development host", "host", "http://localhost:1234");
     parser.addHelpOption();

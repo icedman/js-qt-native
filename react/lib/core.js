@@ -3,7 +3,7 @@ import Text from './text';
 import TextInput from './textinput';
 import Button from './button';
 import ScrollView from './scrollview';
-import MainWindow from './mainwindow';
+import Window from './window';
 
 export {
     View,
@@ -11,5 +11,5 @@ export {
     TextInput,
     Button,
     ScrollView,
-    MainWindow
+    Window
 }

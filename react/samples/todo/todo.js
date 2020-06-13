@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import qt from '../../lib/qt';
 import {
-    MainWindow,
+    Window,
     View,
     Text,
     TextInput,
@@ -83,9 +83,9 @@ const App = () => {
   })
 
     return <div>
-        <MainWindow id='mainWindow' style={{flexDirection:'column'}}>
+        <Window id='mainWindow' style={{flexDirection:'column'}}>
             <Text>
-                <h2>Todoz App</h2>
+                <h2>Todo App</h2>
             </Text>
             <View style={{flexDirection:'row', flex: 0}}>
               <TextInput text={state.newTodo} onSubmit={addTodo} onChange={setNewTodo}></TextInput>
@@ -96,7 +96,7 @@ const App = () => {
               {todosRendered}
               </View>
             </ScrollView>
-        </MainWindow>
+        </Window>
         </div>
 }
 
