@@ -7,6 +7,8 @@
 #include "engine.h"
 #include "core.h"
 
+#define UPDATE_FREQ 50
+
 Engine::Engine(QWidget* parent) :
     QWidget(parent)
     , updateTimer(this)
@@ -16,9 +18,14 @@ Engine::Engine(QWidget* parent) :
     QVBoxLayout* box = new QVBoxLayout(this);
     setLayout(box);
 
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
+
     view = new QWebView(this);
     frame = view->page()->mainFrame();
 
@@ -35,7 +42,7 @@ Engine::Engine(QWidget* parent) :
     splitter->addWidget(inspector);
 
     connect(&updateTimer, SIGNAL(timeout()), this, SLOT(render()));
-    updateTimer.start(50);
+    updateTimer.start(UPDATE_FREQ);
 }
 
 void Engine::runDevelopment(QString path)
@@ -46,6 +53,26 @@ void Engine::runDevelopment(QString path)
 void Engine::addFactory(UIFactory *factory)
 {
     factories.push_back(factory);
+}
+
+bool Engine::loadHtml(QString content, QUrl base)
+{
+    // hack
+    content.replace("src=\"/", "src=\"");
+    
+    // content.replace("<script", "<!--script");
+    // content.replace("/script>", "/script-->");
+    view->setHtml(content, base);
+    return true;
+}
+
+bool Engine::loadHtmlFile(QString path, QUrl base)
+{
+    QFile file(path);
+    if (file.open(QIODevice::ReadOnly)) {
+        return loadHtml(file.readAll(), base);
+    }
+    return true;
 }
 
 void Engine::setupEnvironment()
@@ -105,6 +132,8 @@ QVariant Engine::runScriptFile(QString path)
 //--------------------
 void Engine::render()
 {
+    updateTimer.stop();
+
     QList<QJsonObject> retry;
 
     for(auto doc : mounts) {
@@ -131,14 +160,14 @@ void Engine::render()
             }
             if (obj) {
                 if (addToRegistry(doc, obj)) {
-                    qDebug() << "added to registry";
+                    // qDebug() << "added to registry";
                 }
             } else {
                 qDebug() << "unable to create";
             }
         } else {
             obj->update(doc);
-            qDebug() << "already exists";
+            // qDebug() << "already exists";
         }
     }
     mounts.clear();
@@ -169,6 +198,8 @@ void Engine::render()
         }
     }
     unmounts.clear();
+
+    updateTimer.start(UPDATE_FREQ);
 }
 
 //--------------------

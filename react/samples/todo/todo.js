@@ -8,7 +8,8 @@ import {
     View,
     Text,
     TextInput,
-    Button
+    Button,
+    ScrollView
 } from '../../lib/core';
 
 import { useTodos, StoreProvider as TodosProvider } from './context';
@@ -18,6 +19,9 @@ const App = () => {
   const state = todos.state;
 
   const addTodo = (evt) => {
+    if (state.newTodo === '') {
+      return;
+    }
     todos.dispatch(todos.setState({
       ...state,
       newTodo: '',
@@ -28,6 +32,21 @@ const App = () => {
       }]
     }));
   };
+
+  const toggleTodo = (todo) => {
+    let idx = state.todos.findIndex((t) => {
+      return t.id === todo.id;
+    });
+
+    if (idx !== -1) {
+      let updateTodos = [ ...state.todos ];
+      updateTodos[idx].checked = !updateTodos[idx].checked 
+      todos.dispatch(todos.setState({
+        ...state,
+        todos: updateTodos
+      }));
+    }
+  }
 
   const deleteTodo = (todo) => {
     let idx = state.todos.findIndex((t) => {
@@ -52,8 +71,13 @@ const App = () => {
   }
 
   const todosRendered = state.todos.map((todo,idx) => {
-    return <View key={`todo-${idx}`}>
-        <Text text={todo.text}/>
+    let Wrap = React.Fragment;
+    if (todo.checked) {
+      Wrap = 's';
+    }
+    return <View key={`todo-${idx}`} style={{flexDirection:'row', _justifyContent: 'space-between' }}>
+        <Button text='check' style={{background:'red', border:'none'}} onClick={(evt) =>{ toggleTodo(todo) }}/>
+        <Text style={{flex:2}}><Wrap>{todo.text}</Wrap></Text>
         <Button text='delete' onClick={(evt) =>{ deleteTodo(todo) }}/>
       </View>
   })
@@ -67,9 +91,11 @@ const App = () => {
               <TextInput text={state.newTodo} onSubmit={addTodo} onChange={setNewTodo}></TextInput>
               <Button text='Add Todo' onClick={addTodo}></Button>
             </View>
-            <View style={{flexDirection:'column', flex: 1, alignItems: 'flex-start'}}>
-            {todosRendered}
-            </View>
+            <ScrollView style={{flex: 1}}>
+              <View style={{flexDirection:'column', alignItems: 'flex-start'}}>
+              {todosRendered}
+              </View>
+            </ScrollView>
         </MainWindow>
         </div>
 }

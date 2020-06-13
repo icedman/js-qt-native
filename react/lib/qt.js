@@ -7,6 +7,7 @@ const formatJson = json => {
     let style = { ...(processed.style || {}) };
     processed.style = JSON.stringify(style);
   }
+  console.log(processed);
   delete processed.children;
   return JSON.stringify(processed);
 };

@@ -12,6 +12,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSpacerItem>
+#include <QScrollArea>
 
 #define BEGIN_UI_DEF(T) \
     if (type == #T) { \
@@ -76,7 +77,30 @@ public:
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(uiObject->layout()); }
 
 private:
+    void relayout();
+    
+private:
     QWidget *uiObject;
+};
+
+class ScrollView : public UIObject
+{
+   Q_OBJECT
+public:
+    ScrollView();
+    ~ScrollView();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; }; 
+    bool unmount(QJsonObject json) override { this->deleteLater(); return true; };
+    bool addChild(UIObject *obj) override;
+
+    QWidget* widget() { return uiObject; }
+    QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(view->layout()); }
+
+private:
+    QScrollArea *uiObject;
+    QWidget *view;
 };
 
 class Text : public UIObject

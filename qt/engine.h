@@ -23,6 +23,9 @@ public:
     QVariant runScript(QString script);
     QVariant runScriptFile(QString path);
 
+    bool loadHtml(QString content, QUrl base);
+    bool loadHtmlFile(QString path, QUrl base);
+    
     void runDevelopment(QString path);
     void addFactory(UIFactory *factory);
 

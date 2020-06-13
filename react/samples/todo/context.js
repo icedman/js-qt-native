@@ -1,4 +1,5 @@
 import React from 'react';
+import { v4 as uuid } from 'uuid';
 
 export const Store = React.createContext();
 
@@ -6,7 +7,10 @@ let initialState = JSON.parse(window.localStorage.getItem('todos', '{}'));
 
 if (!initialState || !initialState.todos) {
     initialState = {
-      todos: [],
+      todos: [{
+        id: uuid(),
+        text: 'hello world'
+      }],
       newTodo: ''
     };
 }

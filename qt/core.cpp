@@ -12,6 +12,11 @@ QJsonObject toJson(QString json)
     return doc.object();
 }
 
+QJsonObject toQss(QJsonObject json) {
+    // qDebug() << json;
+    return json;
+}
+
 static void applyStyle(QString qtWidgetName, UIObject *obj, QJsonObject json) {
     QWidget *w = obj->widget();
     if (!w) {
@@ -25,7 +30,7 @@ static void applyStyle(QString qtWidgetName, UIObject *obj, QJsonObject json) {
     if (json.contains("style")) {
         QString qss = qtWidgetName;
         qss += " ";
-        qss += json.value("style").toString();
+        qss += QJsonDocument(QJsonObject(style)).toJson(QJsonDocument::Compact);
         qss = qss.replace("\"", "");
         w->setStyleSheet(qss);
     } else {
@@ -50,6 +55,7 @@ static void applyStyle(QString qtWidgetName, UIObject *obj, QJsonObject json) {
     }
     w->setProperty("flex", style.value("flex").toInt());
     w->setProperty("alignItems", style.value("alignItems").toString());
+    w->setProperty("justifyContent", style.value("justifyContent").toString());
 }
 
 //----------------------------
@@ -103,12 +109,17 @@ View::~View()
 
 bool View::update(QJsonObject json) {
     applyStyle("QWidget", this, json);
+    relayout();
     return true;
 }
 
 bool View::addChild(UIObject *obj) {
     layout()->addWidget(obj->widget());
+    relayout();
+    return true;
+};
 
+void View::relayout() {
     QBoxLayout *l = layout();
     for (int i = 0; i < l->count(); ++i) {
         QLayoutItem *layoutItem = l->itemAt(i);
@@ -122,22 +133,53 @@ bool View::addChild(UIObject *obj) {
         if (w) {
             int stretch = w->property("flex").toInt();
             l->setStretch(i, stretch);
-            qDebug() << "apply";
-            qDebug() << w->property("id").toString();
-            qDebug() << stretch;
         }
     }
 
     QString align = widget()->property("alignItems").toString();
-    if (align == "flex-start" || align == "center") {
-        l->insertStretch(-1, 1);
-    }
-    if (align == "flex-end" || align == "center") {
-        l->insertStretch(0, 1);
+    QString justify = widget()->property("justifyContent").toString();
+
+    if (justify == "space-around" || justify == "space-between") {
+        int c = l->count() - 1;
+        for (int i = 0; i < c; i++) {
+            l->insertStretch((i*2)+1, 1);
+        }
     }
 
+    if (align == "flex-start" || align == "center" || justify == "center"  || justify == "space-around") {
+        l->insertStretch(-1, 1);
+    }
+    if (align == "flex-end" || align == "center" || justify == "center"  || justify == "space-around") {
+        l->insertStretch(0, 1);
+    }
+}
+
+//----------------------------
+// ScrollView
+//----------------------------
+ScrollView::ScrollView() :
+    uiObject(new QScrollArea)
+{
+    view = new QWidget();
+    view->setLayout(new QVBoxLayout());
+    uiObject->setWidget(view);
+    uiObject->setWidgetResizable(true);
+}
+
+ScrollView::~ScrollView()
+{
+    uiObject->deleteLater();
+}
+
+bool ScrollView::update(QJsonObject json) {
+    applyStyle("QScrollArea", this, json);
     return true;
+}
+
+bool ScrollView::addChild(UIObject *obj) {
+    layout()->addWidget(obj->widget()); return true;
 };
+
 
 //----------------------------
 // Text
@@ -156,7 +198,7 @@ Text::~Text()
 }
 
 bool Text::update(QJsonObject json) {
-    applyStyle("QLabel", this, json);
+    applyStyle("QPushButton", this, json);
     if (json.contains("text")) {
         uiObject->setText(json.value("text").toString());
     } else if (json.contains("renderedText")) {
@@ -248,7 +290,9 @@ UIObject* UICoreFactory::create(QJsonObject json) {
     END_UI()
 
     BEGIN_UI_DEF(View)
-        uiObject->widget()->show();
+    END_UI()
+
+    BEGIN_UI_DEF(ScrollView)
     END_UI()
 
     BEGIN_UI_DEF(Text)

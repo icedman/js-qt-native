@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QDebug>
+#include <QFileInfo>
 
 #include "qt/engine.h"
 #include "qt/core.h"
@@ -28,16 +29,16 @@ int main(int argc, char **argv) {
     Engine engine;
     engine.addFactory(new UICoreFactory());
 
-    // engine.mount("{ \"type\": \"MainWindow\", \"persist\": true }");
+    // engine.mount("{ \"id\": \"mainWindow\", \"type\": \"MainWindow\", \"persist\": true }");
 
     if (parser.isSet(devModeOption)) {
         engine.runDevelopment(parser.value(devHostOption));
-        qDebug() << parser.value(devHostOption);
+        // qDebug() << parser.value(devHostOption);
     } else {
-        engine.view->setHtml("<b>Hello World</b>");
         QString entryPath = parser.value(entryOption);
-        // engine.loadHtmlFile(htmlPath);
-        // engine.runScriptFile("./dist/" + entryPath);
+        QUrl base = QUrl::fromLocalFile(QFileInfo(entryPath).absolutePath() + "/");
+        // qDebug() << base;
+        engine.loadHtmlFile(entryPath, base);
     }
 
     if (parser.isSet(inspectOption)) {

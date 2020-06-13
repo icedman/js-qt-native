@@ -11,6 +11,6 @@
   },
   "scripts": {
     "start-todo": "parcel samples/todo/todo.html",
-    "build-todo": "parcel build samples/todo/todo.js"
+    "build-todo": "parcel build samples/todo/todo.html"
   }
 }
