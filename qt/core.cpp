@@ -1,6 +1,9 @@
 #include "core.h"
 #include "engine.h"
 
+#include <QLayout>
+#include <QLayoutItem>
+
 QJsonObject toJson(QString json)
 {
     QByteArray bytes;
@@ -14,8 +17,10 @@ static void applyStyle(QString qtWidgetName, UIObject *obj, QJsonObject json) {
     if (!w) {
         return;
     }
+    w->setProperty("id", json.value("id").toString());
     w->setProperty("className", json.value("className").toString());
     
+    // style
     QJsonObject style = toJson(json.value("style").toString());
     if (json.contains("style")) {
         QString qss = qtWidgetName;
@@ -27,21 +32,24 @@ static void applyStyle(QString qtWidgetName, UIObject *obj, QJsonObject json) {
         w->setStyleSheet("");
     }
 
+    // flexbox
     QBoxLayout *l = obj->layout();
-    if (l && style.contains("direction")) {
-        if (style.value("direction") == "row") {
+    if (l && style.contains("flexDirection")) {
+        if (style.value("flexDirection") == "row") {
             l->setDirection(QBoxLayout::LeftToRight);
         }
-        if (style.value("direction") == "row-reverse") {
+        if (style.value("flexDirection") == "row-reverse") {
             l->setDirection(QBoxLayout::RightToLeft);
         }
-        if (style.value("direction") == "column") {
+        if (style.value("flexDirection") == "column") {
             l->setDirection(QBoxLayout::TopToBottom);
         }
-        if (style.value("direction") == "column-rever") {
+        if (style.value("flexDirection") == "column-reverse") {
             l->setDirection(QBoxLayout::BottomToTop);
         }
     }
+    w->setProperty("flex", style.value("flex").toInt());
+    w->setProperty("alignItems", style.value("alignItems").toString());
 }
 
 //----------------------------
@@ -59,9 +67,8 @@ UIFactory::UIFactory(QObject *parent) :
 MainWindow::MainWindow() :
     uiObject(new QMainWindow)
 {
-    QWidget* main = new QWidget();
-    main->setLayout(new QVBoxLayout());
-    uiObject->setCentralWidget(main);
+    view = new View();
+    uiObject->setCentralWidget(view->widget());
     uiObject->resize(1200, 800);
 }
 
@@ -72,6 +79,11 @@ MainWindow::~MainWindow()
 
 bool MainWindow::update(QJsonObject json) {
     applyStyle("QMainWindow", this, json);
+    return true;
+}
+
+bool MainWindow::addChild(UIObject *obj) {
+    view->addChild(obj);
     return true;
 }
 
@@ -93,6 +105,39 @@ bool View::update(QJsonObject json) {
     applyStyle("QWidget", this, json);
     return true;
 }
+
+bool View::addChild(UIObject *obj) {
+    layout()->addWidget(obj->widget());
+
+    QBoxLayout *l = layout();
+    for (int i = 0; i < l->count(); ++i) {
+        QLayoutItem *layoutItem = l->itemAt(i);
+        if (layoutItem->spacerItem()) {
+            l->removeItem(layoutItem);
+            delete layoutItem;
+            --i;
+            continue;
+        }
+        QWidget *w = layoutItem->widget();
+        if (w) {
+            int stretch = w->property("flex").toInt();
+            l->setStretch(i, stretch);
+            qDebug() << "apply";
+            qDebug() << w->property("id").toString();
+            qDebug() << stretch;
+        }
+    }
+
+    QString align = widget()->property("alignItems").toString();
+    if (align == "flex-start" || align == "center") {
+        l->insertStretch(-1, 1);
+    }
+    if (align == "flex-end" || align == "center") {
+        l->insertStretch(0, 1);
+    }
+
+    return true;
+};
 
 //----------------------------
 // Text

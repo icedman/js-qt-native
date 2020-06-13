@@ -5,8 +5,6 @@ const formatJson = json => {
   let processed = { ...json };
   if (json.style) {
     let style = { ...(processed.style || {}) };
-    style.direction = style.flexDirection;
-    style.flexDirection;
     processed.style = JSON.stringify(style);
   }
   delete processed.children;

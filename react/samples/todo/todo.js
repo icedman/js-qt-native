@@ -63,9 +63,11 @@ const App = () => {
             <Text>
                 <h2>Todoz App</h2>
             </Text>
-            <TextInput text={state.newTodo} onSubmit={addTodo} onChange={setNewTodo}></TextInput>
-            <Button text='Add Todo' onClick={addTodo}></Button>
-            <View style={{flexDirection:'column'}}>
+            <View style={{flexDirection:'row', flex: 0}}>
+              <TextInput text={state.newTodo} onSubmit={addTodo} onChange={setNewTodo}></TextInput>
+              <Button text='Add Todo' onClick={addTodo}></Button>
+            </View>
+            <View style={{flexDirection:'column', flex: 1, alignItems: 'flex-start'}}>
             {todosRendered}
             </View>
         </MainWindow>

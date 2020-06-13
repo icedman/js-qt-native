@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSpacerItem>
 
 #define BEGIN_UI_DEF(T) \
     if (type == #T) { \
@@ -23,6 +24,8 @@
 QJsonObject toJson(QString json);
 
 class Engine;
+class View;
+class QSpacerItem;
 
 class UIObject : public QObject {
     Q_OBJECT
@@ -45,15 +48,16 @@ public:
     ~MainWindow();
 
     bool update(QJsonObject json) override;
-    bool mount(QJsonObject json) { return true; }; 
-    bool unmount(QJsonObject json) { this->deleteLater(); return true; };
-    bool addChild(UIObject *obj) { layout()->addWidget(obj->widget()); return true; };
+    bool mount(QJsonObject json) override { return true; }; 
+    bool unmount(QJsonObject json) override { this->deleteLater(); return true; };
+    bool addChild(UIObject *obj) override;
 
     QWidget* widget() { return uiObject; }
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(uiObject->centralWidget()->layout()); }
 
 private:
-    QMainWindow* uiObject; 
+    QMainWindow* uiObject;
+    View *view;
 };
 
 class View : public UIObject
@@ -64,9 +68,9 @@ public:
     ~View();
 
     bool update(QJsonObject json) override;
-    bool mount(QJsonObject json) { return true; }; 
-    bool unmount(QJsonObject json) { this->deleteLater(); return true; };
-    bool addChild(UIObject *obj) { layout()->addWidget(obj->widget()); return true; };
+    bool mount(QJsonObject json) override { return true; }; 
+    bool unmount(QJsonObject json) override { this->deleteLater(); return true; };
+    bool addChild(UIObject *obj) override;
 
     QWidget* widget() { return uiObject; }
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(uiObject->layout()); }
@@ -83,9 +87,9 @@ public:
     ~Text();
 
     bool update(QJsonObject json) override;
-    bool mount(QJsonObject json) { return true; }; 
-    bool unmount(QJsonObject json) { this->deleteLater(); return true; };
-    bool addChild(UIObject *obj) { layout()->addWidget(obj->widget()); return true; };
+    bool mount(QJsonObject json) override { return true; }; 
+    bool unmount(QJsonObject json) override { this->deleteLater(); return true; };
+    bool addChild(UIObject *obj) override { layout()->addWidget(obj->widget()); return true; };
 
     QWidget* widget() { return uiObject; }
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(uiObject->layout()); }
@@ -102,9 +106,9 @@ public:
     ~TextInput();
 
     bool update(QJsonObject json) override;
-    bool mount(QJsonObject json) { return true; }; 
-    bool unmount(QJsonObject json) { this->deleteLater(); return true; };
-    bool addChild(UIObject *obj) { layout()->addWidget(obj->widget()); return true; };
+    bool mount(QJsonObject json) override { return true; }; 
+    bool unmount(QJsonObject json) override { this->deleteLater(); return true; };
+    bool addChild(UIObject *obj) override { layout()->addWidget(obj->widget()); return true; };
 
     QWidget* widget() { return uiObject; }
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(uiObject->layout()); }
@@ -125,9 +129,9 @@ public:
     ~Button();
 
     bool update(QJsonObject json) override;
-    bool mount(QJsonObject json) { return true; }; 
-    bool unmount(QJsonObject json) { this->deleteLater(); return true; };
-    bool addChild(UIObject *obj) { layout()->addWidget(obj->widget()); return true; };
+    bool mount(QJsonObject json) override { return true; }; 
+    bool unmount(QJsonObject json) override { this->deleteLater(); return true; };
+    bool addChild(UIObject *obj) override { layout()->addWidget(obj->widget()); return true; };
 
     QWidget* widget() { return uiObject; }
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(uiObject->layout()); }

@@ -52,7 +52,7 @@ void Engine::setupEnvironment()
 {
     frame->addToJavaScriptWindowObject("$qt", this);
 
-    // hotreload
+    // this happens at reload
     for(auto k : registry.keys()) {
         UIObject *obj = registry.value(k);
         if (!obj->property("persistent").toBool()) {
@@ -120,12 +120,12 @@ void Engine::render()
             for(auto f : factories) {
                 obj = f->create(doc);
                 if (obj) {
-                    obj->engine = this; //
+                    obj->engine = this;
+                    obj->mount(doc);
+                    obj->update(doc);
                     if (parent) {
                         parent->addChild(obj);
                     }
-                    obj->mount(doc);
-                    obj->update(doc);
                     break;
                 }
             }
