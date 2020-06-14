@@ -16,14 +16,12 @@ int main(int argc, char **argv) {
     QCommandLineOption inspectOption(QStringList() << "i" << "inspect", "show web inspector");
     QCommandLineOption htmlOption(QStringList() << "m" << "html", "inspect with html view");
     QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "./index.html");
-    QCommandLineOption devModeOption(QStringList() << "d" << "develop", "run in development mode");
-    QCommandLineOption devHostOption(QStringList() << "x" << "host", "development host", "host", "http://localhost:1234");
+    QCommandLineOption hostOption(QStringList() << "x" << "host", "development host", "host", "");
     parser.addHelpOption();
     parser.addOption(inspectOption);
     parser.addOption(htmlOption);
     parser.addOption(entryOption);
-    parser.addOption(devModeOption);
-    parser.addOption(devHostOption);
+    parser.addOption(hostOption);
     parser.process(app);
 
     Engine engine;
@@ -31,14 +29,16 @@ int main(int argc, char **argv) {
 
     // engine.mount("{ \"id\": \"mainWindow\", \"type\": \"MainWindow\", \"persist\": true }");
 
-    if (parser.isSet(devModeOption)) {
-        engine.runDevelopment(parser.value(devHostOption));
-        // qDebug() << parser.value(devHostOption);
+    if (parser.value(hostOption) != "") {
+        // qDebug() << "host";
+        engine.runFromUrl(QUrl(parser.value(hostOption)));
     } else {
         QString entryPath = parser.value(entryOption);
-        QUrl base = QUrl::fromLocalFile(QFileInfo(entryPath).absolutePath() + "/");
-        // qDebug() << base;
-        engine.loadHtmlFile(entryPath, base);
+        QUrl base = QUrl::fromLocalFile(QFileInfo(entryPath).absolutePath());
+        QUrl url = QUrl::fromLocalFile(QFileInfo(entryPath).absoluteFilePath());
+        qDebug() << url;
+        // engine.loadHtmlFile(entryPath, base);
+        engine.runFromUrl(url);
     }
 
     if (parser.isSet(inspectOption)) {

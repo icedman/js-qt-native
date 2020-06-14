@@ -1,7 +1,7 @@
-import React from 'react';
-import clsx from 'clsx';
-import { v4 as uuid } from 'uuid';
-import qt from './qt';
+import React from "react";
+import clsx from "clsx";
+import { v4 as uuid } from "uuid";
+import qt from "./engine";
 
 const View_ = props => {
   const [state, setState] = React.useState({
@@ -11,8 +11,12 @@ const View_ = props => {
     persistent: props.id
   });
 
-  let className = clsx('qt', props.type, props.className);
-  let style = { display: 'flex', flexDirection:'column', ...(props.style || {}) };
+  let className = clsx("qt", props.type, props.className);
+  let style = {
+    display: "flex",
+    flexDirection: "column",
+    ...(props.style || {})
+  };
   let uiInfo = { ...props, ...state, className: className };
 
   React.useEffect(() => {

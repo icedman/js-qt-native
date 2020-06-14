@@ -10,7 +10,7 @@
     "uuid": "^8.1.0"
   },
   "scripts": {
-    "start-todo": "parcel samples/todo/todo.html",
-    "build-todo": "parcel build samples/todo/todo.html"
+    "start-todo": "parcel samples/todo/* samples/todo/todo.html",
+    "build-todo": "parcel build --public-url . samples/todo/*"
   }
 }
