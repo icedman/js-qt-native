@@ -1,3 +1,5 @@
+import { v4 as uuid } from "uuid";
+
 const registry = {};
 
 const formatJson = json => {
@@ -5,7 +7,7 @@ const formatJson = json => {
   if (json.style) {
     let style = { ...(processed.style || {}) };
   }
-  console.log(processed);
+  // console.log(processed);
   delete processed.children;
   return JSON.stringify(processed);
 };

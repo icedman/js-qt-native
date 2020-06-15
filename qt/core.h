@@ -215,6 +215,8 @@ private Q_SLOTS:
 private:
     QLabel* uiObject;
     QNetworkAccessManager* netman;
+    QString lastSource;
+    QImage image;
 };
 
 class Button : public UIObject {

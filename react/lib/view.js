@@ -3,11 +3,26 @@ import clsx from "clsx";
 import { v4 as uuid } from "uuid";
 import qt from "./engine";
 
+const getParentId = id => {
+  let node = document.querySelector(`[id="${id}"]`);
+  if (!node) {
+    return null;
+  }
+  node = node.parentElement;
+  while (node) {
+    if (!node.classList.contains("qt")) {
+      node = node.parentElement;
+      continue;
+    }
+    return node.id;
+  }
+  return null;
+};
+
 const View_ = props => {
   const [state, setState] = React.useState({
     type: props.type || "View",
     id: props.id || uuid(),
-    parent: props.parent,
     persistent: props.id
   });
 
@@ -19,40 +34,37 @@ const View_ = props => {
   };
   let uiInfo = { ...props, ...state, className: className };
 
+  const setIds = () => {
+    let parentId = getParentId(state.id) || "";
+    setState({
+      ...state,
+      parent: parentId
+    });
+  };
+
   React.useEffect(() => {
+    setTimeout(setIds, 0);
     qt.mount(uiInfo);
     return () => {
       qt.unmount(uiInfo);
     };
-  }, []);
+  }, [uiInfo.id]);
 
   qt.update(uiInfo);
 
-  let children = [];
-  if (typeof props.children === "object") {
-    {
-      React.Children.map(props.children, (c, idx) => {
-        if (!React.isValidElement(c)) {
-          children.push(c);
-          return;
-        }
-        children.push(
-          React.cloneElement(
-            c,
-            { ...c.props, parent: state.id, key: `${state.id}-${idx}` },
-            c.props.children
-          )
-        );
-      });
-    }
-  }
-
-  // preview on html only
   return (
-    <div {...state} className={className} style={style}>
-      {state.type}::{state.id} {children}
+    <div id={uiInfo.id} type={uiInfo.type} className={uiInfo.className}>
+      {props.children}
     </div>
   );
+
+  /*
+  return (
+    <div id={uiInfo.id} type={uiInfo.type} className={uiInfo.className} style={style}>
+      {state.type} {props.children}
+    </div>
+  );
+  */
 };
 
 const View = React.memo(View_);

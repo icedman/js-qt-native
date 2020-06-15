@@ -10,10 +10,40 @@ import {
   Text,
   TextInput,
   Button,
-  ScrollView
+  ScrollView,
+  FlatList,
+  SectionList
 } from "../../lib/core";
 
 import { useTodos, StoreProvider as TodosProvider } from "./context";
+
+const TodoItem = ({ item, toggleTodo, deleteTodo }) => {
+  let Wrap = React.Fragment;
+  if (item.checked) {
+    Wrap = "s";
+  }
+
+  return (
+    <View style={{ flexDirection: "row" }}>
+      <Button
+        text="check"
+        // style={{ background: "red", border: "none" }}
+        onClick={evt => {
+          toggleTodo(item);
+        }}
+      />
+      <Text style={{ flex: 2 }}>
+        <Wrap>{item.text}</Wrap>
+      </Text>
+      <Button
+        text="delete"
+        onClick={evt => {
+          deleteTodo(item);
+        }}
+      />
+    </View>
+  );
+};
 
 const App = () => {
   const todos = useTodos();
@@ -91,7 +121,7 @@ const App = () => {
       <View key={`todo-${idx}`} style={{ flexDirection: "row" }}>
         <Button
           text="check"
-          style={{ background: "red", border: "none" }}
+          // style={{ background: "red", border: "none" }}
           onClick={evt => {
             toggleTodo(todo);
           }}
@@ -113,9 +143,12 @@ const App = () => {
     <div>
       <Window id="mainWindow" style={{ flexDirection: "column" }}>
         <Text>
-          <h2>Todo App</h2>
+          <h2>Todos App</h2>
         </Text>
-        <Image source="image-placeholder.jpg" />
+        <Image
+          source="image-placeholder.jpg"
+          style={{ width: 200, height: 200 }}
+        />
         <View style={{ flexDirection: "row", flex: 0 }}>
           <TextInput
             text={state.newTodo}
@@ -129,6 +162,12 @@ const App = () => {
             {todosRendered}
           </View>
         </ScrollView>
+        <FlatList
+          data={state.todos}
+          renderItem={props => <TodoItem {...props} />}
+          style={{ flex: 1 }}
+          extraData={{ toggleTodo, deleteTodo }}
+        ></FlatList>
       </Window>
     </div>
   );

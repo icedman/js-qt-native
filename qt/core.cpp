@@ -43,11 +43,13 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
     QJsonObject style = json.value("style").toObject(); // toJson(json.value("style").toString());
 
     // geometry
-    if (json.contains("width") || json.contains("height")) {
-        w->resize(json.value("width").toInt(), json.value("height").toInt());
+    if (style.contains("width") || style.contains("height")) {
+        // w->resize(style.value("width").toInt(), style.value("height").toInt());
+        w->setMaximumSize(style.value("width").toInt(), style.value("height").toInt());
+        w->setMinimumSize(style.value("width").toInt(), style.value("height").toInt());
     }
-    if (json.contains("visible")) {
-        w->setVisible(json.value("visible").toBool());
+    if (style.contains("visible")) {
+        w->setVisible(style.value("visible").toBool());
     }
 
     // flexbox
@@ -220,12 +222,12 @@ Text::~Text() { uiObject->deleteLater(); }
 
 bool Text::update(QJsonObject json)
 {
-    applyStyle("QPushButton", this, json);
     if (json.contains("text")) {
         uiObject->setText(json.value("text").toString());
     } else if (json.contains("renderedText")) {
         uiObject->setText(json.value("renderedText").toString());
     }
+    applyStyle("QPushButton", this, json);
     return true;
 }
 
@@ -244,8 +246,8 @@ TextInput::~TextInput() { uiObject->deleteLater(); }
 
 bool TextInput::update(QJsonObject json)
 {
-    applyStyle("QLineEdit", this, json);
     uiObject->setText(json.value("text").toString());
+    applyStyle("QLineEdit", this, json);
     return true;
 }
 
@@ -286,10 +288,14 @@ bool Image::update(QJsonObject json)
     if (json.contains("source")) {
         // if (engine->basePath.scheme() == "http") {
         QString imageSource = engine->basePath.toString() + json.value("source").toString();
-        qDebug() << imageSource;
-        QNetworkReply* reply = netman->get(QNetworkRequest(QUrl(imageSource)));
-        // }
+        if (lastSource != imageSource) {
+            QNetworkReply* reply = netman->get(QNetworkRequest(QUrl(imageSource)));
+            lastSource = imageSource;
+        }
     }
+    // qDebug() << "image";
+    // qDebug() << uiObject->width();
+    // qDebug() << uiObject->height();
     return true;
 }
 
@@ -298,11 +304,12 @@ void Image::replyFinished(QNetworkReply* reply)
     if (reply->error()) {
         qDebug() << reply->errorString();
     } else {
+        int w = uiObject->width();
+        int h = uiObject->height();
         QImageReader imageReader(reply);
         imageReader.setAutoDetectImageFormat(true);
-        QImage image = imageReader.read();
-        qDebug() << image;
-        uiObject->setPixmap(QPixmap::fromImage(image));
+        image = imageReader.read();
+        uiObject->setPixmap(QPixmap::fromImage(image).scaled(w, h, Qt::KeepAspectRatio));
     }
 }
 

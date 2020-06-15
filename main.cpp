@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
     QCommandLineParser parser;
     QCommandLineOption inspectOption(QStringList() << "i" << "inspect", "show web inspector");
     QCommandLineOption htmlOption(QStringList() << "m" << "html", "inspect with html view");
-    QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "./index.html");
+    QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "");
     QCommandLineOption hostOption(QStringList() << "x" << "host", "development host", "host", "");
     parser.addHelpOption();
     parser.addOption(inspectOption);
@@ -32,13 +32,14 @@ int main(int argc, char **argv) {
     if (parser.value(hostOption) != "") {
         // qDebug() << "host";
         engine.runFromUrl(QUrl(parser.value(hostOption)));
-    } else {
+    } else if (parser.value(entryOption) != "") {
         QString entryPath = parser.value(entryOption);
         QUrl base = QUrl::fromLocalFile(QFileInfo(entryPath).absolutePath());
         QUrl url = QUrl::fromLocalFile(QFileInfo(entryPath).absoluteFilePath());
         qDebug() << url;
-        // engine.loadHtmlFile(entryPath, base);
         engine.runFromUrl(url);
+    } else {
+        // todo load from qrc <deployed app>
     }
 
     if (parser.isSet(inspectOption)) {

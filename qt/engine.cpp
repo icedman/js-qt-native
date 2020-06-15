@@ -18,20 +18,13 @@ Engine::Engine(QWidget* parent)
     QVBoxLayout* box = new QVBoxLayout(this);
     setLayout(box);
 
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled,
-        true);
-    QWebSettings::globalSettings()->setAttribute(
-        QWebSettings::DeveloperExtrasEnabled, true);
-    QWebSettings::globalSettings()->setAttribute(
-        QWebSettings::LocalStorageEnabled, true);
-    QWebSettings::globalSettings()->setAttribute(
-        QWebSettings::OfflineStorageDatabaseEnabled, true);
-    QWebSettings::globalSettings()->setAttribute(
-        QWebSettings::LocalContentCanAccessFileUrls, true);
-    QWebSettings::globalSettings()->setAttribute(
-        QWebSettings::LocalContentCanAccessRemoteUrls, true);
-    QWebSettings::globalSettings()->setAttribute(
-        QWebSettings::JavascriptCanAccessClipboard, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
 
     view = new QWebView(this);
     frame = view->page()->mainFrame();
@@ -90,9 +83,7 @@ void Engine::setupEnvironment()
     // this happens at reload
     for (auto k : registry.keys()) {
         UIObject* obj = registry.value(k);
-        if (!obj->property("persistent").toBool()) {
-            unmounts << toJson("{\"id\": \"" + obj->property("id").toString() + "\"}");
-        }
+        unmounts << toJson("{\"id\": \"" + obj->property("id").toString() + "\"}");
     }
 }
 
@@ -147,11 +138,6 @@ void Engine::render()
     for (auto doc : mounts) {
         UIObject* obj = findInRegistry("id", doc);
         UIObject* parent = findInRegistry("parent", doc);
-        if (!parent && doc.contains("parent")) {
-            retry << doc;
-            continue;
-        }
-
         if (!obj) {
             // create if not exists
             for (auto f : factories) {
@@ -172,6 +158,7 @@ void Engine::render()
                 }
             } else {
                 qDebug() << "unable to create";
+                qDebug() << doc;
             }
         } else {
             obj->update(doc);
@@ -180,13 +167,20 @@ void Engine::render()
     }
     mounts.clear();
     mounts << retry;
-
     retry.clear();
 
     for (auto doc : updates) {
         UIObject* obj = findInRegistry("id", doc);
         if (obj) {
             obj->update(doc);
+            if (!obj->widget()->parent()) {
+                UIObject* parent = findInRegistry("parent", doc);
+                if (parent) {
+                    // qDebug() << "parented on update";
+                    // qDebug() << doc.value("parent").toString();
+                    parent->addChild(obj);
+                }
+            }
         } else {
             retry << doc;
         }
@@ -196,6 +190,9 @@ void Engine::render()
 
     for (auto doc : unmounts) {
         UIObject* obj = findInRegistry("id", doc);
+        if (obj->property("persistent").toBool()) {
+            continue;
+        }
         if (obj) {
             obj->unmount(doc);
             obj->deleteLater();
