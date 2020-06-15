@@ -5,7 +5,7 @@ const registry = {};
 const formatJson = json => {
   let processed = { ...json };
   if (json.style) {
-    let style = { ...(processed.style || {}) };
+    processed.style = { ...(processed.style || {}) };
   }
   // console.log(processed);
   delete processed.children;
@@ -18,7 +18,7 @@ const mount = json => {
   } catch (err) {}
 };
 
-const _events = ["onChange", "onClick", "onSubmit"];
+const _events = ["onChangeText", "onClick", "onPress", "onRelease", "onSubmitEditing"];
 const update = json => {
   try {
     $qt.update(formatJson(json));
@@ -26,7 +26,7 @@ const update = json => {
     // events map events
     registry[json.id] = registry[json.id] || {};
     _events.forEach(e => {
-      registry[json.id][e] = json[e] || (() => {});
+      registry[json.id][e] = json[e] || ((evt) => {});
     });
   } catch (err) {}
 };

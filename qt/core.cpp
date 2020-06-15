@@ -6,6 +6,7 @@
 #include <QImageReader>
 #include <QLayout>
 #include <QLayoutItem>
+#include <QMouseEvent>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
@@ -19,8 +20,7 @@ QJsonObject toJson(QString json)
 
 QString toQss(QJsonObject json)
 {
-    static const QStringList remove = { "flex", "flexDirection", "alignItems",
-        "_justifyContent" };
+    static const QStringList remove = { "flex", "flexDirection", "alignItems", "justifyContent" };
     for (auto s : remove) {
         json.remove(s);
     }
@@ -28,6 +28,7 @@ QString toQss(QJsonObject json)
     QString qss = " ";
     qss += QJsonDocument(QJsonObject(json)).toJson(QJsonDocument::Compact);
     qss = qss.replace("\"", "");
+    qss = qss.replace(",", ";");
     return qss;
 }
 
@@ -74,11 +75,13 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
 
     // style qss
     if (json.contains("style")) {
+        QString styleText = toQss(style);
         QString qss = qtWidgetName;
-        qss += toQss(style);
-        w->setStyleSheet(qss);
-    } else {
-        w->setStyleSheet("");
+        if (styleText != " {}") {
+            qss += styleText;
+            // qDebug() << qss;
+            w->setStyleSheet(qss);
+        }
     }
 }
 
@@ -119,13 +122,61 @@ bool Window::addChild(UIObject* obj)
 //----------------------------
 // View
 //----------------------------
+void TouchableWidget::mousePressEvent(QMouseEvent *event) {
+    event->ignore();
+    emit pressed();
+}
+
+void TouchableWidget::mouseReleaseEvent(QMouseEvent *event) {
+    event->ignore();
+    emit released();
+}
+
+void TouchableWidget::mouseMoveEvent(QMouseEvent *event) {
+    event->ignore();
+}
+
+void TouchableWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    event->ignore();
+}
+
 View::View()
-    : uiObject(new QWidget)
+    : uiObject(new TouchableWidget)
 {
     uiObject->setLayout(new QVBoxLayout());
+    uiObject->layout()->setMargin(0);
+    uiObject->layout()->setSpacing(0);
+    connect(uiObject, SIGNAL(pressed()), this, SLOT(onPress()));
+    connect(uiObject, SIGNAL(released()), this, SLOT(onRelease()));
 }
 
 View::~View() { uiObject->deleteLater(); }
+
+
+void View::onPress()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    QString value = ""; //
+    QString script = "$events[\"" + id + "\"].onPress({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    // qDebug() << script;
+    engine->runScript(script);
+}
+
+void View::onRelease()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    QString value = ""; //
+    QString script = "$events[\"" + id + "\"].onRelease({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    // qDebug() << script;
+    engine->runScript(script);
+}
 
 bool View::update(QJsonObject json)
 {
@@ -227,7 +278,7 @@ bool Text::update(QJsonObject json)
     } else if (json.contains("renderedText")) {
         uiObject->setText(json.value("renderedText").toString());
     }
-    applyStyle("QPushButton", this, json);
+    applyStyle("QLabel", this, json);
     return true;
 }
 
@@ -254,15 +305,21 @@ bool TextInput::update(QJsonObject json)
 void TextInput::onChange(QString value)
 {
     QString id = property("id").toString();
-    QString script = "$events[\"" + id + "\"].onChange({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    if (id.isEmpty()) {
+        return;
+    }
+    QString script = "$events[\"" + id + "\"].onChangeText({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     engine->runScript(script);
 }
 
 void TextInput::onSubmit()
 {
     QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onSubmit({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$events[\"" + id + "\"].onSubmitEditing({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     engine->runScript(script);
 }
 
@@ -276,7 +333,6 @@ Image::Image()
     uiObject->setTextFormat(Qt::RichText);
     uiObject->setTextInteractionFlags(Qt::NoTextInteraction);
     netman = new QNetworkAccessManager(this);
-
     connect(netman, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 }
 
@@ -321,6 +377,8 @@ Button::Button()
 {
     uiObject->setLayout(new QHBoxLayout());
     connect(uiObject, SIGNAL(clicked(bool)), this, SLOT(onClick(bool)));
+    connect(uiObject, SIGNAL(pressed()), this, SLOT(onPress()));
+    connect(uiObject, SIGNAL(released()), this, SLOT(onRelease()));
 }
 
 Button::~Button() { uiObject->deleteLater(); }
@@ -337,9 +395,36 @@ bool Button::update(QJsonObject json)
 void Button::onClick(bool checked)
 {
     QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
     QString value = ""; //
     QString script = "$events[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
-    qDebug() << script;
+    // qDebug() << script;
+    engine->runScript(script);
+}
+
+void Button::onPress()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    QString value = ""; //
+    QString script = "$events[\"" + id + "\"].onPress({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    // qDebug() << script;
+    engine->runScript(script);
+}
+
+void Button::onRelease()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    QString value = ""; //
+    QString script = "$events[\"" + id + "\"].onRelease({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    // qDebug() << script;
     engine->runScript(script);
 }
 

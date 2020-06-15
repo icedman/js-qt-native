@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Window, View, SectionList, Text } from "../../lib/core";
+import { Window, View, SectionList, Text, StyleSheet } from "../../lib/core";
 
 const DATA = [
   {
@@ -23,21 +23,21 @@ const DATA = [
 
 function Item({ title }) {
   return (
-    <View>
-      <Text>{title}</Text>
+    <View style={styles.item} onPress={(evt)=>{console.log(title)}}>
+      <Text style={styles.title}>{title}</Text>
     </View>
   );
 }
 
 function App() {
   return (
-    <Window>
+    <Window style={styles.container}>
       <View>
         <SectionList
           data={DATA}
           renderItem={({ item }) => <Item title={item} />}
           renderSectionHeader={({ section: { title } }) => (
-            <Text>{title}</Text>
+            <Text style={styles.header}>{title}</Text>
           )}
           keyExtractor={(item, index) => item + index}
         />
@@ -45,5 +45,26 @@ function App() {
     </Window>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // marginTop: Constants.statusBarHeight,
+    marginHorizontal: 16
+  },
+  item: {
+    backgroundColor: "#f9c2ff",
+    padding: 20,
+    marginVertical: 8
+  },
+  header: {
+    fontSize: 32,
+    backgroundColor: "#fff"
+  },
+  title: {
+    fontSize: 24
+  }
+});
+
 
 ReactDOM.render(<App />, document.getElementById("root"));

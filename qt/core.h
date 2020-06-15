@@ -71,6 +71,20 @@ private:
     View* view;
 };
 
+class TouchableWidget : public QWidget
+{
+    Q_OBJECT
+private:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+signals:
+    void pressed();
+    void released();
+};
+
 class View : public UIObject {
     Q_OBJECT
 public:
@@ -95,8 +109,11 @@ public:
 private:
     void relayout();
 
-private:
-    QWidget* uiObject;
+    TouchableWidget* uiObject;
+
+public Q_SLOTS:
+    void onPress();
+    void onRelease();
 };
 
 class ScrollView : public UIObject {
@@ -249,6 +266,8 @@ private:
 
 private Q_SLOTS:
     void onClick(bool checked);
+    void onPress();
+    void onRelease();
 };
 
 class UIFactory : public QObject {

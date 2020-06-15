@@ -152,8 +152,8 @@ const App = () => {
         <View style={{ flexDirection: "row", flex: 0 }}>
           <TextInput
             text={state.newTodo}
-            onSubmit={addTodo}
-            onChange={setNewTodo}
+            onSubmitEditing={addTodo}
+            onChangeText={setNewTodo}
           ></TextInput>
           <Button text="Add Todo" onClick={addTodo}></Button>
         </View>

@@ -7,6 +7,7 @@ import ScrollView from "./scrollview";
 import FlatList from "./flatlist";
 import SectionList from "./sectionlist";
 import Window from "./window";
+import StyleSheet from "./stylesheet";
 
 export {
   View,
@@ -17,5 +18,6 @@ export {
   ScrollView,
   FlatList,
   SectionList,
-  Window
+  Window,
+  StyleSheet
 };

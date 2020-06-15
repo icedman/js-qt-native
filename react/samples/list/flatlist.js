@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Window, View, FlatList, Text } from "../../lib/core";
+import { Window, View, FlatList, Text, StyleSheet } from "../../lib/core";
 
 const DATA = [
   {
@@ -19,8 +19,8 @@ const DATA = [
 
 function Item({ title }) {
   return (
-    <View>
-      <Text>{title}</Text>
+    <View style={styles.item} onPress={(evt)=>{console.log(title)}}>
+      <Text style={styles.title}>{title}</Text>
     </View>
   );
 }
@@ -38,5 +38,18 @@ function App() {
     </Window>
   );
 }
+
+
+const styles = StyleSheet.create({
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16
+  },
+  title: {
+    fontSize: 32
+  },
+});
 
 ReactDOM.render(<App />, document.getElementById("root"));
