@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QObject>
+#include <QFrame>
 #include <QWidget>
 
 #include <QJsonDocument>
@@ -15,6 +16,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSpacerItem>
+#include <QSplitter>
 
 #define BEGIN_UI_DEF(T) \
     if (type == #T) {   \
@@ -71,7 +73,7 @@ private:
     View* view;
 };
 
-class TouchableWidget : public QWidget
+class TouchableWidget : public QFrame
 {
     Q_OBJECT
 private:
@@ -138,6 +140,33 @@ private:
     QScrollArea* uiObject;
     QWidget* view;
 };
+
+
+class SplitterView : public UIObject {
+    Q_OBJECT
+public:
+    SplitterView();
+    ~SplitterView();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; };
+    bool unmount(QJsonObject json) override
+    {
+        this->deleteLater();
+        return true;
+    };
+    bool addChild(UIObject* obj) override;
+
+    QWidget* widget() { return uiObject; }
+    QBoxLayout* layout()
+    {
+        return qobject_cast<QBoxLayout*>(uiObject->layout());
+    }
+
+private:
+    QSplitter* uiObject;
+};
+
 
 class Text : public UIObject {
     Q_OBJECT

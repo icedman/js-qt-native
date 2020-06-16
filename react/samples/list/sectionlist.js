@@ -23,7 +23,12 @@ const DATA = [
 
 function Item({ title }) {
   return (
-    <View style={styles.item} onPress={(evt)=>{console.log(title)}}>
+    <View
+      style={styles.item}
+      onPress={evt => {
+        console.log(title);
+      }}
+    >
       <Text style={styles.title}>{title}</Text>
     </View>
   );
@@ -31,9 +36,10 @@ function Item({ title }) {
 
 function App() {
   return (
-    <Window style={styles.container}>
-      <View>
+    <Window id='mainWindow' style={styles.container} qss={qss}>
+      <View style={styles.container}>
         <SectionList
+          style={{margin:0, padding:0}}
           data={DATA}
           renderItem={({ item }) => <Item title={item} />}
           renderSectionHeader={({ section: { title } }) => (
@@ -49,22 +55,31 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // marginTop: Constants.statusBarHeight,
-    marginHorizontal: 16
+    backgroundColor: "#fff",
+    border: "none"
   },
   item: {
     backgroundColor: "#f9c2ff",
     padding: 20,
-    marginVertical: 8
+    marginVertical: 8,
+    marginHorizontal: 8
   },
   header: {
     fontSize: 32,
+    padding: 20,
     backgroundColor: "#fff"
   },
   title: {
+    margin: 0,
+    padding: 0,
     fontSize: 24
   }
 });
 
+const qss = StyleSheet.create({
+  'QScrollBar:vertical': {
+    backgroundColor: 'yellow'
+  }
+});
 
 ReactDOM.render(<App />, document.getElementById("root"));

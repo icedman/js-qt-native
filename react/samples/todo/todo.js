@@ -10,9 +10,12 @@ import {
   Text,
   TextInput,
   Button,
+  Switch,
   ScrollView,
+  SplitterView,
   FlatList,
-  SectionList
+  SectionList,
+  StyleSheet
 } from "../../lib/core";
 
 import { useTodos, StoreProvider as TodosProvider } from "./context";
@@ -24,9 +27,11 @@ const TodoItem = ({ item, toggleTodo, deleteTodo }) => {
   }
 
   return (
-    <View style={{ flexDirection: "row" }}>
-      <Button
+    <View style={{...styles.item, flexDirection: "row" }}>
+      <Switch
+        style={styles.check}
         text="check"
+        value={item.checked}
         // style={{ background: "red", border: "none" }}
         onClick={evt => {
           toggleTodo(item);
@@ -140,8 +145,7 @@ const App = () => {
   });
 
   return (
-    <div>
-      <Window id="mainWindow" style={{ flexDirection: "column" }}>
+      <Window id="mainWindow" style={{...styles.container, flexDirection: "column" }}>
         <Text>
           <h2>Todos App</h2>
         </Text>
@@ -157,7 +161,8 @@ const App = () => {
           ></TextInput>
           <Button text="Add Todo" onClick={addTodo}></Button>
         </View>
-        <ScrollView style={{ flex: 1 }}>
+        <SplitterView style={{ flex: 1 }}>
+        <ScrollView>
           <View style={{ flexDirection: "column", alignItems: "flex-start" }}>
             {todosRendered}
           </View>
@@ -168,10 +173,32 @@ const App = () => {
           style={{ flex: 1 }}
           extraData={{ toggleTodo, deleteTodo }}
         ></FlatList>
+        </SplitterView>
       </Window>
-    </div>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // marginTop: Constants.statusBarHeight,
+    marginHorizontal: 16,
+    backgroundColor: "#fff",
+    border: "none"
+  },
+  item: {
+    backgroundColor: "#f9c2ff",
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 8
+  },
+  title: {
+    fontSize: 32
+  },
+  check: {
+    border: 'none'
+  }
+});
 
 ReactDOM.render(
   <TodosProvider>

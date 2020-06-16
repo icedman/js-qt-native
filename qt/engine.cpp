@@ -131,6 +131,10 @@ QVariant Engine::runScriptFile(QString path)
 //--------------------
 void Engine::render()
 {
+    if (!mounts.size() && !updates.size() && !unmounts.size()) {
+        return;
+    }
+    
     updateTimer.stop();
 
     QList<QJsonObject> retry;
@@ -224,6 +228,6 @@ void Engine::showInspector(bool withHtml)
 
 void Engine::mount(QString json) { mounts.push_back(toJson(json)); }
 
-void Engine::update(QString json) { updates.push_back(toJson(json)); }
+void Engine::update(QString json) { qDebug() << json; updates.push_back(toJson(json)); }
 
 void Engine::unmount(QString json) { unmounts.push_back(toJson(json)); }

@@ -19,7 +19,12 @@ const DATA = [
 
 function Item({ title }) {
   return (
-    <View style={styles.item} onPress={(evt)=>{console.log(title)}}>
+    <View
+      style={styles.item}
+      onPress={evt => {
+        console.log(title);
+      }}
+    >
       <Text style={styles.title}>{title}</Text>
     </View>
   );
@@ -27,8 +32,8 @@ function Item({ title }) {
 
 function App() {
   return (
-    <Window>
-      <View>
+    <Window id='mainWindow' style={styles.container}>
+      <View style={styles.container}>
         <FlatList
           data={DATA}
           renderItem={({ item }) => <Item title={item.title} />}
@@ -39,17 +44,25 @@ function App() {
   );
 }
 
-
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    border: "none",
+    width: 400,
+    height: 600
+  },
   item: {
-    backgroundColor: '#f9c2ff',
+    backgroundColor: "#f9c2ff",
     padding: 20,
     marginVertical: 8,
-    marginHorizontal: 16
+    marginHorizontal: 8
   },
   title: {
+    padding: 0,
+    margin: 0,
     fontSize: 32
-  },
+  }
 });
 
 ReactDOM.render(<App />, document.getElementById("root"));

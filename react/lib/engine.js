@@ -4,11 +4,13 @@ const registry = {};
 
 const formatJson = json => {
   let processed = { ...json };
-  if (json.style) {
-    processed.style = { ...(processed.style || {}) };
-  }
-  // console.log(processed);
   delete processed.children;
+  delete processed.data;
+  Object.keys(json).forEach(k => {
+    if (typeof(json[k]) === 'function') {
+      delete processed[k];
+    }
+  })
   return JSON.stringify(processed);
 };
 
@@ -34,7 +36,7 @@ const update = json => {
 const unmount = json => {
   try {
     $qt.unmount(formatJson(json));
-    registry[json.id];
+    delete registry[json.id];
   } catch (err) {}
 };
 

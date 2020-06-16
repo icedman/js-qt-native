@@ -18,7 +18,7 @@ QJsonObject toJson(QString json)
     return doc.object();
 }
 
-QString toQss(QJsonObject json)
+QString toStyle(QJsonObject json)
 {
     static const QStringList remove = { "flex", "flexDirection", "alignItems", "justifyContent" };
     for (auto s : remove) {
@@ -32,6 +32,16 @@ QString toQss(QJsonObject json)
     return qss;
 }
 
+QString toQss(QJsonObject json) {
+    QString sheet = "";
+    for(auto k : json.keys()) {
+        sheet += "\n";
+        sheet += k;
+        sheet += toStyle(json.value(k).toObject());
+    }
+    return sheet;
+}
+
 static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
 {
     QWidget* w = obj->widget();
@@ -41,13 +51,16 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
     w->setProperty("id", json.value("id").toString());
     w->setProperty("className", json.value("className").toString());
 
-    QJsonObject style = json.value("style").toObject(); // toJson(json.value("style").toString());
+    // qDebug() << w->property("className").toString();
+
+    QJsonObject style = json.value("style").toObject();
+    QJsonObject sheet = json.value("qss").toObject();
 
     // geometry
     if (style.contains("width") || style.contains("height")) {
-        // w->resize(style.value("width").toInt(), style.value("height").toInt());
-        w->setMaximumSize(style.value("width").toInt(), style.value("height").toInt());
-        w->setMinimumSize(style.value("width").toInt(), style.value("height").toInt());
+        w->resize(style.value("width").toInt(), style.value("height").toInt());
+        // w->setMaximumSize(style.value("width").toInt(), style.value("height").toInt());
+        // w->setMinimumSize(style.value("width").toInt(), style.value("height").toInt());
     }
     if (style.contains("visible")) {
         w->setVisible(style.value("visible").toBool());
@@ -73,15 +86,25 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
     w->setProperty("alignItems", style.value("alignItems").toString());
     w->setProperty("justifyContent", style.value("justifyContent").toString());
 
+    QString qss;
+
     // style qss
-    if (json.contains("style")) {
-        QString styleText = toQss(style);
-        QString qss = qtWidgetName;
+    if (json.contains("style") && !qtWidgetName.isEmpty()) {
+        QString styleText = toStyle(style);
         if (styleText != " {}") {
+            qss += qtWidgetName;
             qss += styleText;
-            // qDebug() << qss;
-            w->setStyleSheet(qss);
         }
+    }
+
+    // sheet
+    if (json.contains("qss")) {
+        qss += toQss(sheet);
+    }
+
+    if (!qss.isEmpty()) {
+        // qDebug() << qss;
+        w->setStyleSheet(qss);
     }
 }
 
@@ -110,6 +133,7 @@ Window::~Window() { uiObject->deleteLater(); }
 bool Window::update(QJsonObject json)
 {
     applyStyle("QMainWindow", this, json);
+    // applyStyle("QWidget", view, json);
     return true;
 }
 
@@ -180,7 +204,7 @@ void View::onRelease()
 
 bool View::update(QJsonObject json)
 {
-    applyStyle("QWidget", this, json);
+    applyStyle("QFrame", this, json);
     relayout();
     return true;
 }
@@ -240,6 +264,8 @@ ScrollView::ScrollView()
 {
     view = new QWidget();
     view->setLayout(new QVBoxLayout());
+    view->layout()->setMargin(0);
+    view->layout()->setSpacing(0);
     uiObject->setWidget(view);
     uiObject->setWidgetResizable(true);
 }
@@ -255,6 +281,29 @@ bool ScrollView::update(QJsonObject json)
 bool ScrollView::addChild(UIObject* obj)
 {
     layout()->addWidget(obj->widget());
+    return true;
+};
+
+
+//----------------------------
+// SplitterView
+//----------------------------
+SplitterView::SplitterView()
+    : uiObject(new QSplitter)
+{
+}
+
+SplitterView::~SplitterView() { uiObject->deleteLater(); }
+
+bool SplitterView::update(QJsonObject json)
+{
+    applyStyle("QSplitter", this, json);
+    return true;
+}
+
+bool SplitterView::addChild(UIObject* obj)
+{
+    uiObject->addWidget(obj->widget());
     return true;
 };
 
@@ -365,7 +414,7 @@ void Image::replyFinished(QNetworkReply* reply)
         QImageReader imageReader(reply);
         imageReader.setAutoDetectImageFormat(true);
         image = imageReader.read();
-        uiObject->setPixmap(QPixmap::fromImage(image).scaled(w, h, Qt::KeepAspectRatio));
+        uiObject->setPixmap(QPixmap::fromImage(image).scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 }
 
@@ -449,6 +498,9 @@ UIObject* UICoreFactory::create(QJsonObject json)
     END_UI()
 
     BEGIN_UI_DEF(ScrollView)
+    END_UI()
+
+    BEGIN_UI_DEF(SplitterView)
     END_UI()
 
     BEGIN_UI_DEF(Text)

@@ -26,7 +26,7 @@ const View_ = props => {
     persistent: props.id
   });
 
-  let className = clsx("qt", props.type, props.className);
+  let className = clsx("qt", state.type, props.className);
   let style = {
     display: "flex",
     flexDirection: "column",
@@ -57,14 +57,6 @@ const View_ = props => {
       {props.children}
     </div>
   );
-
-  /*
-  return (
-    <div id={uiInfo.id} type={uiInfo.type} className={uiInfo.className} style={style}>
-      {state.type} {props.children}
-    </div>
-  );
-  */
 };
 
 const View = React.memo(View_);
