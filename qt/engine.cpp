@@ -29,8 +29,7 @@ Engine::Engine(QWidget* parent)
     view = new QWebView(this);
     frame = view->page()->mainFrame();
 
-    connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this,
-        SLOT(setupEnvironment()));
+    connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(startEngine()));
 
     inspector = new QWebInspector();
     inspector->setPage(view->page());
@@ -50,6 +49,8 @@ void Engine::runFromUrl(QUrl path)
 {
     view->setUrl(path);
     basePath = path.adjusted(QUrl::RemoveFilename);
+
+    qDebug() << basePath;
 }
 
 void Engine::addFactory(UIFactory* factory) { factories.push_back(factory); }
@@ -76,7 +77,7 @@ bool Engine::loadHtmlFile(QString path, QUrl base)
     return true;
 }
 
-void Engine::setupEnvironment()
+void Engine::startEngine()
 {
     frame->addToJavaScriptWindowObject("$qt", this);
 
@@ -85,6 +86,29 @@ void Engine::setupEnvironment()
         UIObject* obj = registry.value(k);
         unmounts << toJson("{\"id\": \"" + obj->property("id").toString() + "\"}");
     }
+
+    emit engineReady();
+}
+
+UIObject* Engine::create(QString id, QString type, bool persistent)
+{    
+    QString jsonString;
+    jsonString += "{";
+    jsonString += "\"id\": \"" + id + "\",";
+    jsonString += "\"type\": \"" + type + "\",";
+    jsonString += "\"persistent\": ";
+    jsonString += (persistent ? "true" : "false");
+    jsonString += "}";
+    // qDebug() << "----------------";
+    // qDebug() << jsonString;
+    mount(jsonString);
+    render();
+    return findInRegistryById(id);
+}
+
+UIObject* Engine::findInRegistryById(QString id)
+{
+    return registry.value(id);
 }
 
 UIObject* Engine::findInRegistry(QString id, QJsonObject json)
@@ -166,7 +190,7 @@ void Engine::render()
             }
         } else {
             obj->update(doc);
-            // qDebug() << "already exists";
+            qDebug() << "already exists";
         }
     }
     mounts.clear();
@@ -228,6 +252,6 @@ void Engine::showInspector(bool withHtml)
 
 void Engine::mount(QString json) { mounts.push_back(toJson(json)); }
 
-void Engine::update(QString json) { qDebug() << json; updates.push_back(toJson(json)); }
+void Engine::update(QString json) { updates.push_back(toJson(json)); }
 
 void Engine::unmount(QString json) { unmounts.push_back(toJson(json)); }

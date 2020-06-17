@@ -26,7 +26,9 @@ int main(int argc, char **argv) {
 
     Engine engine;
     engine.addFactory(new UICoreFactory());
+    UIObject *obj = engine.create("mainWindow", "Window", true);
 
+    qDebug() << obj;
     // engine.mount("{ \"id\": \"mainWindow\", \"type\": \"MainWindow\", \"persist\": true }");
 
     if (parser.value(hostOption) != "") {

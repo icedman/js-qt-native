@@ -6,6 +6,7 @@ import Button from "./button";
 import Switch from "./switch";
 import ScrollView from "./scrollview";
 import SplitterView from "./splitterview";
+import StackedView from "./stackedview";
 import FlatList from "./flatlist";
 import SectionList from "./sectionlist";
 import Window from "./window";
@@ -20,6 +21,7 @@ export {
   Switch,
   ScrollView,
   SplitterView,
+  StackedView,
   FlatList,
   SectionList,
   Window,

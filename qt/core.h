@@ -17,6 +17,7 @@
 #include <QScrollArea>
 #include <QSpacerItem>
 #include <QSplitter>
+#include <QStackedWidget>
 
 #define BEGIN_UI_DEF(T) \
     if (type == #T) {   \
@@ -141,7 +142,6 @@ private:
     QWidget* view;
 };
 
-
 class SplitterView : public UIObject {
     Q_OBJECT
 public:
@@ -167,6 +167,30 @@ private:
     QSplitter* uiObject;
 };
 
+class StackedView : public UIObject {
+    Q_OBJECT
+public:
+    StackedView();
+    ~StackedView();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; };
+    bool unmount(QJsonObject json) override
+    {
+        this->deleteLater();
+        return true;
+    };
+    bool addChild(UIObject* obj) override;
+
+    QWidget* widget() { return uiObject; }
+    QBoxLayout* layout()
+    {
+        return qobject_cast<QBoxLayout*>(uiObject->layout());
+    }
+
+private:
+    QStackedWidget* uiObject;
+};
 
 class Text : public UIObject {
     Q_OBJECT
@@ -303,7 +327,7 @@ class UIFactory : public QObject {
 public:
     UIFactory(QObject* engine = 0);
 
-    UIObject* create(QString jsonString)
+    virtual UIObject* create(QString jsonString)
     {
         QByteArray bytes;
         bytes.append(jsonString);
@@ -311,7 +335,7 @@ public:
         QJsonObject json = doc.object();
         return create(json);
     }
-
+    
     virtual UIObject* create(QJsonObject json) { return NULL; }
 
 private:

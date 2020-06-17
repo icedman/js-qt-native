@@ -308,6 +308,36 @@ bool SplitterView::addChild(UIObject* obj)
 };
 
 //----------------------------
+// StackedView
+//----------------------------
+StackedView::StackedView()
+    : uiObject(new QStackedWidget)
+{
+}
+
+StackedView::~StackedView() { uiObject->deleteLater(); }
+
+bool StackedView::update(QJsonObject json)
+{
+    applyStyle("QStackedWidget", this, json);
+
+    if (json.contains("current")) {
+        QString current = json.value("current").toString();
+        UIObject *obj = engine->findInRegistryById(current);
+        if (obj) {
+            uiObject->setCurrentWidget(obj->widget());
+        }
+    }
+    return true;
+}
+
+bool StackedView::addChild(UIObject* obj)
+{
+    uiObject->addWidget(obj->widget());
+    return true;
+};
+
+//----------------------------
 // Text
 //----------------------------
 Text::Text()
@@ -501,6 +531,9 @@ UIObject* UICoreFactory::create(QJsonObject json)
     END_UI()
 
     BEGIN_UI_DEF(SplitterView)
+    END_UI()
+
+    BEGIN_UI_DEF(StackedView)
     END_UI()
 
     BEGIN_UI_DEF(Text)

@@ -31,9 +31,11 @@ public:
     void runFromUrl(QUrl path);
     void addFactory(UIFactory* factory);
 
-    UIObject* findInRegistry(QString id, QJsonObject json);
+    UIObject* findInRegistryById(QString id);
+    UIObject* findInRegistry(QString key, QJsonObject json);
     UIObject* addToRegistry(QJsonObject json, UIObject* object);
-
+    UIObject* create(QString id, QString type, bool persistent);
+    
 public slots:
     void showInspector(bool withHtml);
 
@@ -41,8 +43,11 @@ public slots:
     void update(QString json);
     void unmount(QString json);
 
+signals:
+    void engineReady();
+
 private Q_SLOTS:
-    void setupEnvironment();
+    void startEngine();
     void render();
 
 private:
