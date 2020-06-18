@@ -42,6 +42,7 @@ public slots:
     void mount(QString json);
     void update(QString json);
     void unmount(QString json);
+    void widget(QString id);
 
 signals:
     void engineReady();

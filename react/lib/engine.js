@@ -27,6 +27,12 @@ const update = json => {
 
     // events map events
     registry[json.id] = registry[json.id] || {};
+    
+    if (!registry[json.id].$widget) {
+      $qt.widget(json.id);
+      registry[json.id].$widget = window.$widget;
+    }
+
     _events.forEach(e => {
       registry[json.id][e] = json[e] || ((evt) => {});
     });
@@ -46,6 +52,6 @@ const qt = {
   update
 };
 
-window.$events = registry;
+window.$widgets = registry;
 
 export default qt;

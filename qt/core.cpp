@@ -20,7 +20,7 @@ QJsonObject toJson(QString json)
 
 QString toStyle(QJsonObject json)
 {
-    static const QStringList remove = { "flex", "flexDirection", "alignItems", "justifyContent" };
+    static const QStringList remove = { "flex", "flexDirection", "alignItems", "justifyContent", "visible" };
     for (auto s : remove) {
         json.remove(s);
     }
@@ -63,7 +63,7 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
         // w->setMinimumSize(style.value("width").toInt(), style.value("height").toInt());
     }
     if (style.contains("visible")) {
-        w->setVisible(style.value("visible").toBool());
+        w->setVisible(style.value("visible").toBool() == true);
     }
 
     // flexbox
@@ -143,6 +143,12 @@ bool Window::addChild(UIObject* obj)
     return true;
 }
 
+void Window::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
+
 //----------------------------
 // View
 //----------------------------
@@ -185,7 +191,7 @@ void View::onPress()
         return;
     }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onPress({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onPress({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     // qDebug() << script;
     engine->runScript(script);
 }
@@ -197,7 +203,7 @@ void View::onRelease()
         return;
     }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onRelease({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onRelease({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     // qDebug() << script;
     engine->runScript(script);
 }
@@ -256,6 +262,12 @@ void View::relayout()
     // uiObject->setUpdatesEnabled(true);
 }
 
+void View::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
+
 //----------------------------
 // ScrollView
 //----------------------------
@@ -284,6 +296,11 @@ bool ScrollView::addChild(UIObject* obj)
     return true;
 };
 
+void ScrollView::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
 
 //----------------------------
 // SplitterView
@@ -306,6 +323,12 @@ bool SplitterView::addChild(UIObject* obj)
     uiObject->addWidget(obj->widget());
     return true;
 };
+
+void SplitterView::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
 
 //----------------------------
 // StackedView
@@ -337,6 +360,12 @@ bool StackedView::addChild(UIObject* obj)
     return true;
 };
 
+void StackedView::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
+
 //----------------------------
 // Text
 //----------------------------
@@ -361,6 +390,12 @@ bool Text::update(QJsonObject json)
     return true;
 }
 
+void Text::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
+
 //----------------------------
 // TextInput
 //----------------------------
@@ -376,8 +411,10 @@ TextInput::~TextInput() { uiObject->deleteLater(); }
 
 bool TextInput::update(QJsonObject json)
 {
-    uiObject->setText(json.value("text").toString());
     applyStyle("QLineEdit", this, json);
+    if (json.contains("text")) {
+        uiObject->setText(json.value("text").toString());
+    }
     return true;
 }
 
@@ -387,7 +424,7 @@ void TextInput::onChange(QString value)
     if (id.isEmpty()) {
         return;
     }
-    QString script = "$events[\"" + id + "\"].onChangeText({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onChangeText({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     engine->runScript(script);
 }
 
@@ -398,8 +435,28 @@ void TextInput::onSubmit()
         return;
     }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onSubmitEditing({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onSubmitEditing({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     engine->runScript(script);
+}
+
+void TextInput::addToJavaScriptWindowObject()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
+}
+
+void TextInput::focus()
+{
+    uiObject->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void TextInput::select()
+{
+    QTimer::singleShot(50, uiObject, &QLineEdit::selectAll);
 }
 
 //----------------------------
@@ -448,6 +505,12 @@ void Image::replyFinished(QNetworkReply* reply)
     }
 }
 
+void Image::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
+
 //----------------------------
 // Button
 //----------------------------
@@ -478,7 +541,7 @@ void Button::onClick(bool checked)
         return;
     }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     // qDebug() << script;
     engine->runScript(script);
 }
@@ -490,7 +553,7 @@ void Button::onPress()
         return;
     }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onPress({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onPress({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     // qDebug() << script;
     engine->runScript(script);
 }
@@ -502,9 +565,15 @@ void Button::onRelease()
         return;
     }
     QString value = ""; //
-    QString script = "$events[\"" + id + "\"].onRelease({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onRelease({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
     // qDebug() << script;
     engine->runScript(script);
+}
+
+void Button::addToJavaScriptWindowObject()
+{
+    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
 //----------------------------

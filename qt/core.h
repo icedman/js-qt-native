@@ -44,6 +44,7 @@ public:
     virtual bool addChild(UIObject* obj) = 0;
     virtual QWidget* widget() = 0;
     virtual QBoxLayout* layout() = 0;
+    virtual void addToJavaScriptWindowObject() = 0;
 
     Engine* engine;
 };
@@ -68,6 +69,8 @@ public:
     {
         return qobject_cast<QBoxLayout*>(uiObject->centralWidget()->layout());
     }
+
+    void addToJavaScriptWindowObject() override;
 
 private:
     QMainWindow* uiObject;
@@ -109,6 +112,8 @@ public:
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
 
+    void addToJavaScriptWindowObject() override;
+
 private:
     void relayout();
 
@@ -137,6 +142,8 @@ public:
     QWidget* widget() { return uiObject; }
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(view->layout()); }
 
+    void addToJavaScriptWindowObject() override;
+
 private:
     QScrollArea* uiObject;
     QWidget* view;
@@ -163,6 +170,8 @@ public:
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
 
+    void addToJavaScriptWindowObject() override;
+
 private:
     QSplitter* uiObject;
 };
@@ -187,6 +196,8 @@ public:
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
+
+    void addToJavaScriptWindowObject() override;
 
 private:
     QStackedWidget* uiObject;
@@ -217,6 +228,8 @@ public:
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
 
+    void addToJavaScriptWindowObject() override;
+
 private:
     QLabel* uiObject;
 };
@@ -245,6 +258,13 @@ public:
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
+
+    void addToJavaScriptWindowObject() override;
+
+public Q_SLOTS:
+    
+    void focus();
+    void select();
 
 private:
     QLineEdit* uiObject;
@@ -278,6 +298,8 @@ public:
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
+
+    void addToJavaScriptWindowObject() override;
 
 private Q_SLOTS:
     void replyFinished(QNetworkReply* reply);
@@ -314,6 +336,8 @@ public:
         return qobject_cast<QBoxLayout*>(uiObject->layout());
     }
 
+    void addToJavaScriptWindowObject() override;
+    
 private:
     QPushButton* uiObject;
 

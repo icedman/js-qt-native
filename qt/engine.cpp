@@ -32,7 +32,6 @@ Engine::Engine(QWidget* parent)
     connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(startEngine()));
 
     inspector = new QWebInspector();
-    inspector->setPage(view->page());
     inspector->setVisible(true);
 
     box->addWidget(splitter);
@@ -246,6 +245,8 @@ void Engine::showInspector(bool withHtml)
         view->hide();
     }
 
+    inspector->setPage(view->page());
+
     resize(1200, 800);
     show();
 }
@@ -255,3 +256,11 @@ void Engine::mount(QString json) { mounts.push_back(toJson(json)); }
 void Engine::update(QString json) { updates.push_back(toJson(json)); }
 
 void Engine::unmount(QString json) { unmounts.push_back(toJson(json)); }
+
+void Engine::widget(QString id)
+{
+    UIObject *uiObject = findInRegistryById(id);
+    if (uiObject) {
+        uiObject->addToJavaScriptWindowObject();
+    }
+}
