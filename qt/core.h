@@ -40,7 +40,7 @@ class UIObject : public QObject {
 public:
     virtual bool mount(QJsonObject json) = 0;
     virtual bool update(QJsonObject json) = 0;
-    virtual bool unmount(QJsonObject json) = 0;
+    virtual bool unmount() = 0;
     virtual bool addChild(UIObject* obj) = 0;
     virtual QWidget* widget() = 0;
     virtual QBoxLayout* layout() = 0;
@@ -57,7 +57,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -99,7 +99,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -132,7 +132,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -157,7 +157,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -184,7 +184,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -211,7 +211,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -242,7 +242,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -282,7 +282,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;
@@ -319,7 +319,7 @@ public:
 
     bool update(QJsonObject json) override;
     bool mount(QJsonObject json) override { return true; };
-    bool unmount(QJsonObject json) override
+    bool unmount() override
     {
         this->deleteLater();
         return true;

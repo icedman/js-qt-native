@@ -54,6 +54,7 @@ private Q_SLOTS:
 private:
     QTimer updateTimer;
     QMap<QString, UIObject*> registry;
+    QList<UIObject*> garbage;
 
     // requests
     QList<QJsonObject> mounts;

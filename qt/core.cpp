@@ -49,6 +49,7 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
         return;
     }
     w->setProperty("id", json.value("id").toString());
+    w->setProperty("order", json.value("order").toInt());
     w->setProperty("className", json.value("className").toString());
 
     // qDebug() << w->property("className").toString();
@@ -245,6 +246,20 @@ void View::relayout()
     QString align = widget()->property("alignItems").toString();
     QString justify = widget()->property("justifyContent").toString();
 
+    // re-order
+    for (int j = 0; j < l->count(); ++j) {
+        for (int i = 0; i < l->count(); ++i) {
+            QLayoutItem* layoutItem = l->itemAt(i);
+            QWidget* w = layoutItem->widget();
+            if (w) {
+                int order = w->property("order").toInt();
+                if (order != -1) {
+                    layout()->insertWidget(order, w);
+                }
+            }
+        }
+    }
+
     if (justify == "space-around" || justify == "space-between") {
         int c = l->count() - 1;
         for (int i = 0; i < c; i++) {
@@ -382,7 +397,10 @@ Text::~Text() { uiObject->deleteLater(); }
 bool Text::update(QJsonObject json)
 {
     if (json.contains("text")) {
-        uiObject->setText(json.value("text").toString());
+        QString newText = json.value("text").toString();
+        if (newText != uiObject->text()) {
+            uiObject->setText(newText);
+        }
     } else if (json.contains("renderedText")) {
         uiObject->setText(json.value("renderedText").toString());
     }
@@ -413,7 +431,10 @@ bool TextInput::update(QJsonObject json)
 {
     applyStyle("QLineEdit", this, json);
     if (json.contains("text")) {
-        uiObject->setText(json.value("text").toString());
+        QString newText = json.value("text").toString();
+        if (newText != uiObject->text()) {
+            uiObject->setText(newText);
+        }
     }
     return true;
 }
@@ -424,12 +445,15 @@ void TextInput::onChange(QString value)
     if (id.isEmpty()) {
         return;
     }
-    QString script = "$widgets[\"" + id + "\"].onChangeText({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onChangeText({ target: { src: \"" + id + "\", value: \"" + value.replace('\\', "\\\\") + "\" }})";
     engine->runScript(script);
 }
 
 void TextInput::onSubmit()
 {
+    if (!uiObject->isVisible()) {
+        return;
+    }
     QString id = property("id").toString();
     if (id.isEmpty()) {
         return;
@@ -529,7 +553,16 @@ bool Button::update(QJsonObject json)
 {
     applyStyle("QPushButton", this, json);
     if (json.contains("text")) {
-        uiObject->setText(json.value("text").toString());
+        QString newText = json.value("text").toString();
+        if (newText != uiObject->text()) {
+            uiObject->setText(newText);
+        }
+    }
+    if (json.contains("checked")) {
+        uiObject->setChecked(json.value("checked").toBool());
+    }
+    if (json.contains("checkable")) {
+        uiObject->setCheckable(json.value("checkable").toBool());
     }
     return true;
 }
@@ -540,8 +573,7 @@ void Button::onClick(bool checked)
     if (id.isEmpty()) {
         return;
     }
-    QString value = ""; //
-    QString script = "$widgets[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: \"" + value + "\" }})";
+    QString script = "$widgets[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: " + (checked ? "true" : "false") + " }})";
     // qDebug() << script;
     engine->runScript(script);
 }

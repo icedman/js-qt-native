@@ -155,6 +155,13 @@ QVariant Engine::runScriptFile(QString path)
 void Engine::render()
 {
     if (!mounts.size() && !updates.size() && !unmounts.size()) {
+        if (garbage.size()) {
+            for(auto obj : garbage) {
+                obj->unmount();
+                obj->deleteLater();
+            }
+            garbage.clear();
+        }
         return;
     }
     
@@ -200,7 +207,7 @@ void Engine::render()
         UIObject* obj = findInRegistry("id", doc);
         if (obj) {
             obj->update(doc);
-            if (!obj->widget()->parent()) {
+            if (garbage.size() || !obj->widget()->parent()) {
                 UIObject* parent = findInRegistry("parent", doc);
                 if (parent) {
                     // qDebug() << "parented on update";
@@ -221,8 +228,13 @@ void Engine::render()
             continue;
         }
         if (obj) {
-            obj->unmount(doc);
-            obj->deleteLater();
+
+            garbage.push_back(obj);
+            obj->widget()->hide();
+
+            // obj->unmount(doc);
+            // obj->deleteLater();
+
             qDebug() << "-----------------";
             qDebug() << "unmount";
             qDebug() << doc;
