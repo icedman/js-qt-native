@@ -153,7 +153,11 @@ bool Window::addChild(UIObject* obj)
 
 void Window::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -285,7 +289,11 @@ void View::relayout()
 
 void View::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -318,7 +326,11 @@ bool ScrollView::addChild(UIObject* obj)
 
 void ScrollView::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -366,7 +378,22 @@ void StatusBar::relayout()
 
 void StatusBar::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
+}
+
+void StatusBar::showMessage(QString msg, int timeout)
+{
+    qDebug() << "status" << msg;
+    uiObject->showMessage(msg, timeout);
+}
+
+void StatusBar::clearMessage()
+{
+    uiObject->clearMessage();
 }
 
 //----------------------------
@@ -393,7 +420,11 @@ bool SplitterView::addChild(UIObject* obj)
 
 void SplitterView::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -428,7 +459,11 @@ bool StackedView::addChild(UIObject* obj)
 
 void StackedView::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -460,7 +495,11 @@ bool Text::update(QJsonObject json)
 
 void Text::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -579,7 +618,11 @@ void Image::replyFinished(QNetworkReply* reply)
 
 void Image::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------
@@ -651,7 +694,11 @@ void Button::onRelease()
 
 void Button::addToJavaScriptWindowObject()
 {
-    engine->frame->addToJavaScriptWindowObject("$widget", this);
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
 //----------------------------

@@ -131,6 +131,7 @@ UIObject* Engine::addToRegistry(QJsonObject json, UIObject* object)
     object->setProperty("id", id);
     object->setProperty("persistent", json.contains("persistent"));
     registry.insert(id, object);
+    qDebug() << "added to registry" << id;
     return object;
 }
 

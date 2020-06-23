@@ -177,6 +177,11 @@ private:
     void relayout();
     
     QStatusBar* uiObject;
+    
+public Q_SLOTS:
+    
+    void showMessage(QString msg, int timeout);
+    void clearMessage();
 };
 
 class SplitterView : public UIObject {
