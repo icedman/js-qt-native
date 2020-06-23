@@ -476,7 +476,7 @@ void MenuItem::onTrigger(bool checked)
         return;
     }
     QString script = "$widgets[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: " + (checked ? "true" : "false") + " }})";
-    qDebug() << script;
+    // qDebug() << script;
     engine->runScript(script);
 }
 
