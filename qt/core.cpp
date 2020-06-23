@@ -505,7 +505,7 @@ bool Image::update(QJsonObject json)
         // if (engine->basePath.scheme() == "http") {
         QString imageSource = engine->basePath.toString() + json.value("source").toString();
         if (lastSource != imageSource) {
-            QNetworkReply* reply = netman->get(QNetworkRequest(QUrl(imageSource)));
+            netman->get(QNetworkRequest(QUrl(imageSource)));
             lastSource = imageSource;
         }
     }

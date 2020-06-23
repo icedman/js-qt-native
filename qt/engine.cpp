@@ -48,7 +48,6 @@ void Engine::runFromUrl(QUrl path)
 {
     view->setUrl(path);
     basePath = path.adjusted(QUrl::RemoveFilename);
-
     qDebug() << basePath;
 }
 
@@ -137,6 +136,8 @@ UIObject* Engine::addToRegistry(QJsonObject json, UIObject* object)
 
 QVariant Engine::runScript(QString script)
 {
+    // qDebug() << script;
+    // return frame->evaluateJavaScript("{" + script + "}");
     return frame->evaluateJavaScript(script);
 }
 

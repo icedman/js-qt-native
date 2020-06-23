@@ -10,6 +10,7 @@
 
 class UIObject;
 class UIFactory;
+class QNetworkReply;
 
 class Engine : public QWidget {
     Q_OBJECT
