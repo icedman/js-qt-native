@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
     QApplication app(argc, argv);
     
     QCommandLineParser parser;
+    
     QCommandLineOption inspectOption(QStringList() << "i" << "inspect", "show web inspector");
     QCommandLineOption htmlOption(QStringList() << "m" << "html", "inspect with html view");
     QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "");

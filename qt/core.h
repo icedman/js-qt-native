@@ -17,6 +17,7 @@
 #include <QScrollArea>
 #include <QSpacerItem>
 #include <QSplitter>
+#include <QStatusBar>
 #include <QStackedWidget>
 
 #define BEGIN_UI_DEF(T) \
@@ -147,6 +148,35 @@ public:
 private:
     QScrollArea* uiObject;
     QWidget* view;
+};
+
+class StatusBar : public UIObject {
+    Q_OBJECT
+public:
+    StatusBar();
+    ~StatusBar();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; };
+    bool unmount() override
+    {
+        this->deleteLater();
+        return true;
+    };
+    bool addChild(UIObject* obj) override;
+
+    QWidget* widget() { return uiObject; }
+    QBoxLayout* layout()
+    {
+        return qobject_cast<QBoxLayout*>(uiObject->layout());
+    }
+
+    void addToJavaScriptWindowObject() override;
+
+private:
+    void relayout();
+    
+    QStatusBar* uiObject;
 };
 
 class SplitterView : public UIObject {

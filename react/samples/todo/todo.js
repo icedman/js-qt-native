@@ -15,6 +15,7 @@ import {
   SplitterView,
   FlatList,
   SectionList,
+  StatusBar,
   StyleSheet
 } from "../../lib/core";
 
@@ -146,6 +147,10 @@ const App = () => {
 
   return (
       <Window id="mainWindow" style={{...styles.container, flexDirection: "column" }}>
+        <StatusBar>
+            <Text permanent>{state.newTodo}</Text>
+            <Text>123</Text>
+        </StatusBar>
         <Text>
           <h2>Todos App</h2>
         </Text>

@@ -51,6 +51,7 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
     w->setProperty("id", json.value("id").toString());
     w->setProperty("order", json.value("order").toInt());
     w->setProperty("className", json.value("className").toString());
+    w->setProperty("permanent", json.contains("permanent"));
 
     // qDebug() << w->property("className").toString();
 
@@ -140,13 +141,18 @@ bool Window::update(QJsonObject json)
 
 bool Window::addChild(UIObject* obj)
 {
+    QStatusBar *bar = qobject_cast<QStatusBar*>(obj->widget());
+    if (bar) {
+        uiObject->setStatusBar(bar);
+        bar->show();
+        return true;
+    }
     view->addChild(obj);
     return true;
 }
 
 void Window::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -279,7 +285,6 @@ void View::relayout()
 
 void View::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -313,7 +318,54 @@ bool ScrollView::addChild(UIObject* obj)
 
 void ScrollView::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
+    engine->frame->addToJavaScriptWindowObject("$widget", this);
+}
+
+//----------------------------
+// StatusBar
+//----------------------------
+StatusBar::StatusBar()
+    : uiObject(new QStatusBar)
+{
+}
+
+StatusBar::~StatusBar() { uiObject->deleteLater(); }
+
+bool StatusBar::update(QJsonObject json)
+{
+    applyStyle("QStatusBar", this, json);
+    relayout();
+    return true;
+}
+
+bool StatusBar::addChild(UIObject* obj)
+{
+    uiObject->addWidget(obj->widget());
+    relayout();
+    return true;
+};
+
+void StatusBar::relayout()
+{
+    QList<QWidget*> widgets;
+    for(auto c : uiObject->children()) {
+        QWidget *w = qobject_cast<QWidget*>(c);
+        if (w) {
+            widgets.append(w);
+        }
+    }
+    
+    for(auto w : widgets) {
+       if (w->property("permanent").toBool()) {
+           uiObject->addPermanentWidget(w);
+       } else {
+           uiObject->addWidget(w);
+       }
+    }
+}
+
+void StatusBar::addToJavaScriptWindowObject()
+{
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -341,7 +393,6 @@ bool SplitterView::addChild(UIObject* obj)
 
 void SplitterView::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -377,7 +428,6 @@ bool StackedView::addChild(UIObject* obj)
 
 void StackedView::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -410,7 +460,6 @@ bool Text::update(QJsonObject json)
 
 void Text::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -469,7 +518,6 @@ void TextInput::addToJavaScriptWindowObject()
     if (id.isEmpty()) {
         return;
     }
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
@@ -531,7 +579,6 @@ void Image::replyFinished(QNetworkReply* reply)
 
 void Image::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -604,7 +651,6 @@ void Button::onRelease()
 
 void Button::addToJavaScriptWindowObject()
 {
-    // engine->frame->addToJavaScriptWindowObject(uiObject->property("id").toString(), this);
     engine->frame->addToJavaScriptWindowObject("$widget", this);
 }
 
@@ -644,6 +690,9 @@ UIObject* UICoreFactory::create(QJsonObject json)
     END_UI()
 
     BEGIN_UI_DEF(Button)
+    END_UI()
+    
+    BEGIN_UI_DEF(StatusBar)
     END_UI()
 
     return NULL;
