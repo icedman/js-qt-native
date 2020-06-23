@@ -141,12 +141,20 @@ bool Window::update(QJsonObject json)
 
 bool Window::addChild(UIObject* obj)
 {
-    QStatusBar *bar = qobject_cast<QStatusBar*>(obj->widget());
+    QStatusBar *status = qobject_cast<QStatusBar*>(obj->widget());
+    if (status) {
+        uiObject->setStatusBar(status);
+        status->show();
+        return true;
+    }
+    
+    QMenuBar *bar = qobject_cast<QMenuBar*>(obj->widget());
     if (bar) {
-        uiObject->setStatusBar(bar);
+        uiObject->setMenuBar(bar);
         bar->show();
         return true;
     }
+    
     view->addChild(obj);
     return true;
 }
@@ -331,6 +339,145 @@ void ScrollView::addToJavaScriptWindowObject()
         return;
     }
     engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
+}
+
+//----------------------------
+// MenuBar
+//----------------------------
+MenuBar::MenuBar()
+    : uiObject(new QMenuBar)
+{
+}
+
+MenuBar::~MenuBar() { uiObject->deleteLater(); }
+
+bool MenuBar::update(QJsonObject json)
+{
+    applyStyle("QMenuBar", this, json);
+    return true;
+}
+
+bool MenuBar::addChild(UIObject* obj)
+{
+    Menu *menu = qobject_cast<Menu*>(obj);
+    if (menu) {
+        uiObject->addMenu(qobject_cast<QMenu*>(menu->widget()));
+        return true;
+    }
+    
+    MenuItem *item = qobject_cast<MenuItem*>(obj);
+    if (item) {
+        uiObject->addAction(item->action());
+        return true;
+    }
+    
+    return true;
+};
+
+void MenuBar::addToJavaScriptWindowObject()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
+}
+
+//----------------------------
+// Menu
+//----------------------------
+Menu::Menu()
+    : uiObject(new QMenu)
+{
+}
+
+Menu::~Menu() { uiObject->deleteLater(); }
+
+bool Menu::update(QJsonObject json)
+{
+    applyStyle("QMenu", this, json);
+    if (json.contains("text")) {
+        QString newText = json.value("text").toString();
+        if (newText != uiObject->title()) {
+            uiObject->setTitle(newText);
+        }
+    }
+    return true;
+}
+
+bool Menu::addChild(UIObject* obj)
+{
+    Menu *menu = qobject_cast<Menu*>(obj);
+    if (menu) {
+        uiObject->addMenu(qobject_cast<QMenu*>(menu->widget()));
+        return true;
+    }
+    
+    MenuItem *item = qobject_cast<MenuItem*>(obj);
+    if (item) {
+        uiObject->addAction(item->action());
+        return true;
+    }
+    return true;
+};
+
+void Menu::addToJavaScriptWindowObject()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
+}
+
+//----------------------------
+// MenuItem
+//----------------------------
+MenuItem::MenuItem()
+    : uiObject(new QAction)
+    , _widget(new QWidget)
+{
+    connect(uiObject, SIGNAL(triggered(bool)), this, SLOT(onTrigger(bool)));
+}
+
+MenuItem::~MenuItem() { uiObject->deleteLater(); _widget->deleteLater(); }
+
+bool MenuItem::update(QJsonObject json)
+{
+    applyStyle("MenuItem", this, json);
+    if (json.contains("text")) {
+        QString newText = json.value("text").toString();
+        if (newText != uiObject->text()) {
+            uiObject->setText(newText);
+        }
+    }
+    return true;
+}
+
+bool MenuItem::addChild(UIObject* obj)
+{
+    // uiObject->addWidget(obj->widget());
+    return true;
+};
+
+void MenuItem::addToJavaScriptWindowObject()
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
+}
+
+void MenuItem::onTrigger(bool checked)
+{
+    QString id = property("id").toString();
+    if (id.isEmpty()) {
+        return;
+    }
+    QString script = "$widgets[\"" + id + "\"].onClick({ target: { src: \"" + id + "\", value: " + (checked ? "true" : "false") + " }})";
+    qDebug() << script;
+    engine->runScript(script);
 }
 
 //----------------------------
@@ -740,6 +887,15 @@ UIObject* UICoreFactory::create(QJsonObject json)
     END_UI()
     
     BEGIN_UI_DEF(StatusBar)
+    END_UI()
+    
+    BEGIN_UI_DEF(MenuBar)
+    END_UI()
+        
+    BEGIN_UI_DEF(Menu)
+    END_UI()
+        
+    BEGIN_UI_DEF(MenuItem)
     END_UI()
 
     return NULL;

@@ -18,6 +18,9 @@
 #include <QSpacerItem>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 #include <QStackedWidget>
 
 #define BEGIN_UI_DEF(T) \
@@ -182,6 +185,96 @@ public Q_SLOTS:
     
     void showMessage(QString msg, int timeout);
     void clearMessage();
+};
+
+class MenuBar : public UIObject {
+    Q_OBJECT
+public:
+    MenuBar();
+    ~MenuBar();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; };
+    bool unmount() override
+    {
+        this->deleteLater();
+        return true;
+    };
+    bool addChild(UIObject* obj) override;
+
+    QWidget* widget() { return uiObject; }
+    QBoxLayout* layout()
+    {
+        return qobject_cast<QBoxLayout*>(uiObject->layout());
+    }
+
+    void addToJavaScriptWindowObject() override;
+
+private:
+    
+    QMenuBar* uiObject;
+};
+
+class Menu : public UIObject {
+    Q_OBJECT
+public:
+    Menu();
+    ~Menu();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; };
+    bool unmount() override
+    {
+        this->deleteLater();
+        return true;
+    };
+    bool addChild(UIObject* obj) override;
+
+    QWidget* widget() { return uiObject; }
+    QBoxLayout* layout()
+    {
+        return qobject_cast<QBoxLayout*>(uiObject->layout());
+    }
+
+    void addToJavaScriptWindowObject() override;
+
+private:
+    
+    QMenu* uiObject;
+};
+
+class MenuItem : public UIObject {
+    Q_OBJECT
+public:
+    MenuItem();
+    ~MenuItem();
+
+    bool update(QJsonObject json) override;
+    bool mount(QJsonObject json) override { return true; };
+    bool unmount() override
+    {
+        this->deleteLater();
+        return true;
+    };
+    bool addChild(UIObject* obj) override;
+
+    QWidget* widget() { return _widget; }
+    QBoxLayout* layout()
+    {
+        return qobject_cast<QBoxLayout*>(_widget->layout());
+    }
+
+    void addToJavaScriptWindowObject() override;
+
+    QAction* action() { return uiObject; }
+
+private:
+    
+    QAction* uiObject;
+    QWidget* _widget;
+
+private Q_SLOTS:
+    void onTrigger(bool checked);
 };
 
 class SplitterView : public UIObject {

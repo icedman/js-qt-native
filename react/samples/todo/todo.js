@@ -16,6 +16,9 @@ import {
   FlatList,
   SectionList,
   StatusBar,
+  MenuBar,
+  Menu,
+  MenuItem,
   StyleSheet
 } from "../../lib/core";
 
@@ -144,6 +147,10 @@ const App = () => {
       </View>
     );
   });
+  
+    const onExit = (evt) => {
+        console.log("bye!");
+    }
 
   return (
       <Window id="mainWindow" style={{...styles.container, flexDirection: "column" }}>
@@ -151,6 +158,18 @@ const App = () => {
             <Text permanent>{state.newTodo}</Text>
             <Text>123</Text>
         </StatusBar>
+        <MenuBar>
+            <Menu text='&File'>
+                <MenuItem text='New'/>
+                <MenuItem text='Open'/>
+                <MenuItem text='Save'/>
+                <MenuItem text='E&xit' onClick={onExit}/>
+            </Menu>
+            <Menu text='&View'>
+            </Menu>
+            <Menu text='&Help'>
+            </Menu>
+        </MenuBar>
         <Text>
           <h2>Todos App</h2>
         </Text>

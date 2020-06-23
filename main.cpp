@@ -14,10 +14,10 @@ int main(int argc, char **argv) {
     
     QCommandLineParser parser;
     
-    QCommandLineOption inspectOption(QStringList() << "i" << "inspect", "show web inspector");
-    QCommandLineOption htmlOption(QStringList() << "m" << "html", "inspect with html view");
-    QCommandLineOption entryOption(QStringList() << "e" << "entry", "set entry script", "entry", "");
-    QCommandLineOption hostOption(QStringList() << "x" << "host", "development host", "host", "");
+    QCommandLineOption inspectOption({ "i", "inspect" }, "show web inspector");
+    QCommandLineOption htmlOption({ "m", "html" }, "inspect with html view");
+    QCommandLineOption entryOption({ "e", "entry" }, "set entry script", "entry", "");
+    QCommandLineOption hostOption({ "x", "host" }, "development host", "host", "");
     parser.addHelpOption();
     parser.addOption(inspectOption);
     parser.addOption(htmlOption);

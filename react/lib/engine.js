@@ -48,7 +48,7 @@ const widget = (id) => {
     let wid = `$widgets_${cid}`;
     setTimeout(() => {
       let widget = window[wid];
-      // delete window[wid]; unpollute window
+      delete window[wid]; // unpollute window
       resolve(widget);
     }, 0);
   });
