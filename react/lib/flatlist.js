@@ -10,9 +10,14 @@ const FlatList_ = props => {
     renderItem: props.renderItem
   });
 
-  const data = props.data || [];
+  let data = props.data || [];
   const Item = state.renderItem;
   const keyExtractor = props.keyExtractor || ((item, index) => item + index);
+  
+  if (!data.map) {
+      data = [];
+  }
+  
   const renderedItems = data.map((item, index) => {
     return (
       <Item
@@ -25,7 +30,7 @@ const FlatList_ = props => {
 
   return (
     <ScrollView {...props}>
-      <View style={{ flexDirection: "column", alignItems: "flex-start" }}>
+      <View style={{ 'flex-direction': 'column', 'align-items': 'flex-start' }}>
         {renderedItems}
       </View>
     </ScrollView>

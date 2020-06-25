@@ -77,6 +77,8 @@ bool Engine::loadHtmlFile(QString path, QUrl base)
 
 void Engine::startEngine()
 {
+    qDebug() << "Engine::attachJSObjects";
+        
     frame->addToJavaScriptWindowObject("$qt", this);
 
     // this happens at reload
@@ -131,7 +133,7 @@ UIObject* Engine::addToRegistry(QJsonObject json, UIObject* object)
     object->setProperty("id", id);
     object->setProperty("persistent", json.contains("persistent"));
     registry.insert(id, object);
-    qDebug() << "added to registry" << id;
+    // qDebug() << "added to registry" << id;
     return object;
 }
 
@@ -198,7 +200,7 @@ void Engine::render()
             }
         } else {
             obj->update(doc);
-            qDebug() << "already exists";
+            // qDebug() << "already exists";
         }
     }
     mounts.clear();
@@ -237,9 +239,9 @@ void Engine::render()
             // obj->unmount(doc);
             // obj->deleteLater();
 
-            qDebug() << "-----------------";
-            qDebug() << "unmount";
-            qDebug() << doc;
+            // qDebug() << "-----------------";
+            // qDebug() << "unmount";
+            // qDebug() << doc;
             registry.remove(doc.value("id").toString());
         }
     }
@@ -263,6 +265,11 @@ void Engine::showInspector(bool withHtml)
 
     resize(1200, 800);
     show();
+}
+
+void Engine::hideInspector()
+{
+    hide();
 }
 
 void Engine::mount(QString json) { mounts.push_back(toJson(json)); }

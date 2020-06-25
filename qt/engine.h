@@ -39,6 +39,7 @@ public:
     
 public slots:
     void showInspector(bool withHtml);
+    void hideInspector();
 
     void mount(QString json);
     void update(QString json);

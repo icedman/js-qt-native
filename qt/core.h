@@ -84,15 +84,25 @@ private:
 class TouchableWidget : public QFrame
 {
     Q_OBJECT
+public:
+    TouchableWidget();
 private:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;    
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 signals:
     void pressed();
     void released();
+
+public:
+    bool hoverable;
+    bool touchable;
 };
 
 class View : public UIObject {

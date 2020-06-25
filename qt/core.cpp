@@ -1,6 +1,7 @@
 #include "core.h"
 #include "engine.h"
 
+#include <QApplication>
 #include <QFileInfo>
 #include <QImage>
 #include <QImageReader>
@@ -9,6 +10,7 @@
 #include <QMouseEvent>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QStyle>
 
 QJsonObject toJson(QString json)
 {
@@ -20,7 +22,7 @@ QJsonObject toJson(QString json)
 
 QString toStyle(QJsonObject json)
 {
-    static const QStringList remove = { "flex", "flexDirection", "alignItems", "justifyContent", "visible" };
+    static const QStringList remove = { "flex", "flex-direction", "align-items", "justify-content", "visible" };
     for (auto s : remove) {
         json.remove(s);
     }
@@ -70,23 +72,23 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
 
     // flexbox
     QBoxLayout* l = obj->layout();
-    if (l && style.contains("flexDirection")) {
-        if (style.value("flexDirection") == "row") {
+    if (l && style.contains("flex-direction")) {
+        if (style.value("flex-direction") == "row") {
             l->setDirection(QBoxLayout::LeftToRight);
         }
-        if (style.value("flexDirection") == "row-reverse") {
+        if (style.value("flex-direction") == "row-reverse") {
             l->setDirection(QBoxLayout::RightToLeft);
         }
-        if (style.value("flexDirection") == "column") {
+        if (style.value("flex-direction") == "column") {
             l->setDirection(QBoxLayout::TopToBottom);
         }
-        if (style.value("flexDirection") == "column-reverse") {
+        if (style.value("flex-direction") == "column-reverse") {
             l->setDirection(QBoxLayout::BottomToTop);
         }
     }
     w->setProperty("flex", style.value("flex").toInt());
-    w->setProperty("alignItems", style.value("alignItems").toString());
-    w->setProperty("justifyContent", style.value("justifyContent").toString());
+    w->setProperty("align-items", style.value("align-items").toString());
+    w->setProperty("justify-content", style.value("justify-content").toString());
 
     QString qss;
 
@@ -171,14 +173,23 @@ void Window::addToJavaScriptWindowObject()
 //----------------------------
 // View
 //----------------------------
+TouchableWidget::TouchableWidget() : QFrame() {
+    hoverable = false;
+    touchable = false;
+}
+
 void TouchableWidget::mousePressEvent(QMouseEvent *event) {
     event->ignore();
-    emit pressed();
+    if (touchable) {
+        emit pressed();
+    }
 }
 
 void TouchableWidget::mouseReleaseEvent(QMouseEvent *event) {
     event->ignore();
-    emit released();
+    if (touchable) {
+        emit released();
+    }
 }
 
 void TouchableWidget::mouseMoveEvent(QMouseEvent *event) {
@@ -190,6 +201,49 @@ void TouchableWidget::mouseDoubleClickEvent(QMouseEvent *event)
     event->ignore();
 }
 
+void TouchableWidget::enterEvent(QEvent *event) {
+    if (hoverable) {
+        QString className = property("className").toString();
+        if (!className.contains("hover")) {
+            className += " hover";
+            setProperty("className", className); 
+            QApplication *app = qobject_cast<QApplication*>(QApplication::instance()); 
+            app->style()->unpolish(app);
+            app->style()->polish(app);
+            update();
+        }
+    }
+    event->ignore();
+}
+
+void TouchableWidget::leaveEvent(QEvent *event) {
+    if (hoverable) {
+        QString className = property("className").toString();
+        if (className.contains("hover")) {
+            className.replace(" hover", "");
+            setProperty("className", className);
+            QApplication *app = qobject_cast<QApplication*>(QApplication::instance()); 
+            app->style()->unpolish(app);
+            app->style()->polish(app);
+            update();
+        }
+    }
+    event->ignore();
+}
+
+
+void TouchableWidget::focusInEvent(QFocusEvent *event)
+{
+    QFrame::focusInEvent(event);
+    update();
+}
+
+void TouchableWidget::focusOutEvent(QFocusEvent *event)
+{
+    QFrame::focusOutEvent(event);
+    update();
+}
+    
 View::View()
     : uiObject(new TouchableWidget)
 {
@@ -230,6 +284,20 @@ void View::onRelease()
 bool View::update(QJsonObject json)
 {
     applyStyle("QFrame", this, json);
+    
+    if (json.contains("hoverable")) {
+        uiObject->hoverable = json["hoverable"].toBool();
+    }
+    if (json.contains("touchable")) {
+        uiObject->touchable = json["touchable"].toBool();
+    }
+    
+    if (uiObject->hoverable || uiObject->touchable) {
+        uiObject->setFocusPolicy(Qt::StrongFocus);
+    } else {
+        uiObject->setFocusPolicy(Qt::NoFocus);
+    }
+    
     relayout();
     return true;
 }
@@ -261,8 +329,8 @@ void View::relayout()
         }
     }
 
-    QString align = widget()->property("alignItems").toString();
-    QString justify = widget()->property("justifyContent").toString();
+    QString align = widget()->property("align-items").toString();
+    QString justify = widget()->property("justify-content").toString();
 
     // re-order
     for (int j = 0; j < l->count(); ++j) {
@@ -675,7 +743,11 @@ bool TextInput::update(QJsonObject json)
 }
 
 void TextInput::onChange(QString value)
-{
+{    
+    if (!uiObject->isVisible()) {
+        return;
+    }
+    
     QString id = property("id").toString();
     if (id.isEmpty()) {
         return;
