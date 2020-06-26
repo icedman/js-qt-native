@@ -311,7 +311,7 @@ bool View::addChild(UIObject* obj)
 
 void View::relayout()
 {
-    // uiObject->setUpdatesEnabled(false);
+    uiObject->setUpdatesEnabled(false);
 
     QBoxLayout* l = layout();
     for (int i = 0; i < l->count(); ++i) {
@@ -360,7 +360,8 @@ void View::relayout()
         l->insertStretch(0, 1);
     }
 
-    // uiObject->setUpdatesEnabled(true);
+    uiObject->setUpdatesEnabled(true);
+    uiObject->update();
 }
 
 void View::addToJavaScriptWindowObject()
