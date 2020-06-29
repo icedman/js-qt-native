@@ -200,6 +200,9 @@ void Engine::render()
             }
         } else {
             obj->update(doc);
+            if (doc.contains("retained") && obj->widget()) {
+                obj->widget()->show();
+            }
             // qDebug() << "already exists";
         }
     }
@@ -229,6 +232,11 @@ void Engine::render()
     for (auto doc : unmounts) {
         UIObject* obj = findInRegistry("id", doc);
         if (obj->property("persistent").toBool()) {
+            qDebug() << "persistent";
+            qDebug() << doc;
+            if (doc.contains("retained") && obj->widget()) {
+                obj->widget()->hide();
+            }
             continue;
         }
         if (obj) {
@@ -239,9 +247,9 @@ void Engine::render()
             // obj->unmount(doc);
             // obj->deleteLater();
 
-            // qDebug() << "-----------------";
-            // qDebug() << "unmount";
-            // qDebug() << doc;
+            qDebug() << "-----------------";
+            qDebug() << "unmount";
+            qDebug() << doc;
             registry.remove(doc.value("id").toString());
         }
     }
