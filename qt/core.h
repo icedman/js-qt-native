@@ -47,6 +47,7 @@ public:
     virtual bool unmount() = 0;
     virtual bool addChild(UIObject* obj) = 0;
     virtual QWidget* widget() = 0;
+    virtual void setWidget(QWidget *w) = 0;
     virtual QBoxLayout* layout() = 0;
     virtual void addToJavaScriptWindowObject() = 0;
 
@@ -69,6 +70,8 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
+    
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->centralWidget()->layout());
@@ -121,6 +124,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -154,6 +158,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout() { return qobject_cast<QBoxLayout*>(view->layout()); }
 
     void addToJavaScriptWindowObject() override;
@@ -179,6 +184,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override;
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -213,6 +219,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override;
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -241,6 +248,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -269,6 +277,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return _widget; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(_widget->layout());
@@ -303,6 +312,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -330,6 +340,7 @@ public:
     bool addChild(UIObject* obj) override;
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -361,6 +372,7 @@ public:
     };
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -392,6 +404,7 @@ public:
     };
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -403,6 +416,7 @@ public Q_SLOTS:
     
     void focus();
     void select();
+    void setText(QString text);
 
 private:
     QLineEdit* uiObject;
@@ -432,6 +446,7 @@ public:
     };
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());
@@ -469,6 +484,7 @@ public:
     };
 
     QWidget* widget() { return uiObject; }
+    void setWidget(QWidget *w) override {};
     QBoxLayout* layout()
     {
         return qobject_cast<QBoxLayout*>(uiObject->layout());

@@ -22,7 +22,15 @@ QJsonObject toJson(QString json)
 
 QString toStyle(QJsonObject json)
 {
-    static const QStringList remove = { "flex", "flex-direction", "align-items", "justify-content", "visible" };
+    static const QStringList remove = {
+        "flex",
+        "flex-direction",
+        "align-items",
+        "justify-content",
+        "visible",
+        "icon-width",
+        "icon-height"
+    };
     for (auto s : remove) {
         json.remove(s);
     }
@@ -63,8 +71,12 @@ static void applyStyle(QString qtWidgetName, UIObject* obj, QJsonObject json)
     // geometry
     if (style.contains("width") || style.contains("height")) {
         w->resize(style.value("width").toInt(), style.value("height").toInt());
-        // w->setMaximumSize(style.value("width").toInt(), style.value("height").toInt());
-        // w->setMinimumSize(style.value("width").toInt(), style.value("height").toInt());
+    }
+    if (style.contains("minWidth") || style.contains("minHeight")) {
+        w->setMinimumSize(style.value("minWidth").toInt(), style.value("minHeight").toInt());
+    }
+    if (style.contains("maxWidth") || style.contains("maxHeight")) {
+        w->setMaximumSize(style.value("maxWidth").toInt(), style.value("maxHeight").toInt());
     }
     if (style.contains("visible")) {
         w->setVisible(style.value("visible").toBool() == true);
@@ -452,6 +464,13 @@ void MenuBar::addToJavaScriptWindowObject()
     engine->frame->addToJavaScriptWindowObject("$widgets_" + id.replace(':','_'), this);
 }
 
+
+void MenuBar::setWidget(QWidget *w)
+{
+    uiObject->deleteLater();
+    uiObject = (QMenuBar*)w;
+}
+
 //----------------------------
 // Menu
 //----------------------------
@@ -520,6 +539,10 @@ bool MenuItem::update(QJsonObject json)
             uiObject->setText(newText);
         }
     }
+    
+    if (json.contains("icon")) {
+        uiObject->setIcon(engine->icon(json.value("icon").toString()));
+    }
     return true;
 }
 
@@ -568,7 +591,7 @@ bool StatusBar::update(QJsonObject json)
 
 bool StatusBar::addChild(UIObject* obj)
 {
-    uiObject->addWidget(obj->widget());
+    uiObject->addPermanentWidget(obj->widget());
     relayout();
     return true;
 };
@@ -610,6 +633,12 @@ void StatusBar::showMessage(QString msg, int timeout)
 void StatusBar::clearMessage()
 {
     uiObject->clearMessage();
+}
+
+void StatusBar::setWidget(QWidget *w)
+{
+    uiObject->deleteLater();
+    uiObject = (QStatusBar*)w;
 }
 
 //----------------------------
@@ -740,6 +769,12 @@ bool TextInput::update(QJsonObject json)
             uiObject->setText(newText);
         }
     }
+    if (json.contains("placeholder")) {
+        QString placeholder = json.value("placeholder").toString();
+        if (placeholder != uiObject->placeholderText()) {
+            uiObject->setPlaceholderText(placeholder);
+        }
+    }
     return true;
 }
 
@@ -788,6 +823,11 @@ void TextInput::focus()
 void TextInput::select()
 {
     QTimer::singleShot(50, uiObject, &QLineEdit::selectAll);
+}
+
+void TextInput::setText(QString text)
+{
+    uiObject->setText(text);
 }
 
 //----------------------------
@@ -873,6 +913,16 @@ bool Button::update(QJsonObject json)
     }
     if (json.contains("checkable")) {
         uiObject->setCheckable(json.value("checkable").toBool());
+    }
+    if (json.contains("icon")) {
+        uiObject->setIcon(engine->icon(json.value("icon").toString()));
+    }
+    if (json.contains("style")) {
+        QJsonObject style = json.value("style").toObject();
+        if (style.contains("icon-width") && style.contains("icon-height")) {
+            QSize sz(style.value("icon-width").toInt(), style.value("icon-height").toInt());
+            uiObject->setIconSize(sz);
+        } 
     }
     return true;
 }

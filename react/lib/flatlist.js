@@ -18,7 +18,7 @@ const FlatList_ = props => {
         data = [];
     }
 
-    data = data.slice(0, 20);
+    // data = data.slice(0, 20);
 
     const renderedItems = data.map((item, index) => {
         return (

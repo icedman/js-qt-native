@@ -184,13 +184,19 @@ void Engine::render()
                     obj->engine = this;
                     obj->mount(doc);
                     obj->update(doc);
-                    if (parent) {
-                        parent->addChild(obj);
-                    }
+                    // if (parent) {
+                        // parent->addChild(obj);
+                    // }
                     break;
                 }
             }
             if (obj) {
+                if (parent) {
+                    parent->addChild(obj);
+                }
+                if (obj->widget()) {
+                    obj->widget()->setProperty("mounted", true);
+                }
                 if (addToRegistry(doc, obj)) {
                     // qDebug() << "added to registry";
                 }
@@ -202,6 +208,7 @@ void Engine::render()
             obj->update(doc);
             if (doc.contains("retained") && obj->widget()) {
                 obj->widget()->show();
+                obj->widget()->setProperty("mounted", true);
             }
             // qDebug() << "already exists";
         }
@@ -232,10 +239,11 @@ void Engine::render()
     for (auto doc : unmounts) {
         UIObject* obj = findInRegistry("id", doc);
         if (obj->property("persistent").toBool()) {
-            qDebug() << "persistent";
-            qDebug() << doc;
+//             qDebug() << "persistent";
+//             qDebug() << doc;
             if (doc.contains("retained") && obj->widget()) {
                 obj->widget()->hide();
+                obj->widget()->setProperty("mounted", false);
             }
             continue;
         }
@@ -247,9 +255,9 @@ void Engine::render()
             // obj->unmount(doc);
             // obj->deleteLater();
 
-            qDebug() << "-----------------";
-            qDebug() << "unmount";
-            qDebug() << doc;
+//             qDebug() << "-----------------";
+//             qDebug() << "unmount";
+//             qDebug() << doc;
             registry.remove(doc.value("id").toString());
         }
     }
@@ -292,4 +300,20 @@ void Engine::widget(QString id)
     if (uiObject) {
         uiObject->addToJavaScriptWindowObject();
     }
+}
+
+QIcon Engine::icon(QString id)
+{
+    if (icons.contains(id)) {
+        return icons[id];
+    }
+    return QIcon();
+}
+
+QIcon Engine::registerIcon(QString id, QIcon icon)
+{
+    if (!icons.contains(id)) {
+        icons.insert(id, icon);
+    }
+    return Engine::icon(id);
 }

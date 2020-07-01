@@ -19,6 +19,10 @@ const SectionList_ = props => {
     if (!data.map) {
         data = [];
     }
+    
+    if (props.maxItems) {
+        data = data.slice(0, props.maxItems);
+    }
 
     const renderedItems = data.map((section, sectionIndex) => {
         const sectionItems = section.data.map((item, index) => {

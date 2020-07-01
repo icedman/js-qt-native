@@ -36,6 +36,9 @@ public:
     UIObject* findInRegistry(QString key, QJsonObject json);
     UIObject* addToRegistry(QJsonObject json, UIObject* object);
     UIObject* create(QString id, QString type, bool persistent);
+
+    QIcon icon(QString id);
+    QIcon registerIcon(QString id, QIcon icon);
     
 public slots:
     void showInspector(bool withHtml);
@@ -58,6 +61,9 @@ private:
     QMap<QString, UIObject*> registry;
     QList<UIObject*> garbage;
 
+    // icons    
+    QMap<QString, QIcon> icons;
+    
     // requests
     QList<QJsonObject> mounts;
     QList<QJsonObject> unmounts;
