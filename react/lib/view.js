@@ -37,11 +37,11 @@ const View_ = props => {
     });
 
     let className = clsx('qt', state.type, props.className);
-    let style = {
-        display: 'flex',
-        flexDirection: 'column',
-        ...(props.style || {})
-    };
+    // let style = {
+    //     display: 'flex',
+    //     flexDirection: 'column',
+    //     ...(props.style || {})
+    // };
     let uiInfo = { ...props, ...state, className: className };
 
     const setIds = () => {

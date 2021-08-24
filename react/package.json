@@ -13,6 +13,7 @@
   "scripts": {
     "start-list": "parcel samples/list/*",
     "start-todo": "parcel samples/todo/*",
+    "build-list": "parcel build --public-url . samples/list/*",
     "build-todo": "parcel build --public-url . samples/todo/*"
   }
 }
